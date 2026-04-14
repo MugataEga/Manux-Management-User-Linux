@@ -10,7 +10,6 @@ function sendPrompt(text){
   alert("Action: " + text);
 }
 
-// Tambah user (simulasi)
 document.querySelectorAll('.btn-sm')[0].addEventListener('click', function(){
   const name = prompt("Masukkan nama user:");
   if(!name) return;
@@ -31,7 +30,6 @@ document.querySelectorAll('.btn-sm')[0].addEventListener('click', function(){
   container.appendChild(newUser);
 });
 
-// Toggle permission (klik rwx)
 document.querySelectorAll('.bit').forEach(bit => {
   bit.addEventListener('click', () => {
     if(bit.classList.contains('on')){
@@ -46,7 +44,6 @@ document.querySelectorAll('.bit').forEach(bit => {
   });
 });
 
-// Klik user (highlight)
 document.querySelectorAll('.user-row').forEach(row => {
   row.addEventListener('click', () => {
     document.querySelectorAll('.user-row').forEach(r => r.style.background='');
