@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="shell">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:16px;">
+            <div class="topbar-brand"><div class="brand-dot"></div>MANUX</div>
+            <div class="breadcrumb" style="font-size:11px;color:var(--text-secondary);font-weight:400;">Dashboard / <span >Activity Log</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:11px;color:var(--text-secondary);">Mon 14 Apr 2025</span>
+            <div class="avatar">AD</div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="nav-label">Menu</div>
+            <div class="nav-item item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+            Dashboard
+            </div>
+            <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+            User Management
+            </div>
+            <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
+            Group Management
+            </div>
+            <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+            Permissions
+            </div>
+            <div class="nav-i active">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+                Activity Log
+                <span class="nbadge">3</span>
+            </div>
+            <div class="nav-label" style="margin-top:8px;">System</div>
+            <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
+            Settings
+            </div>
+        </div>
+        <div class="content">
+            <div class="page-header">
+                <div>
+                <div class="page-title">Activity log</div>
+                <div class="page-sub">Semua aktivitas sistem — login, perubahan user/group, permission</div>
+                </div>
+                <div class="hdr-actions">
+                <button class="btn" onclick="doExport()">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
+                    Export CSV
+                </button>
+                <button class="btn" onclick="doExport()">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
+                    Export PDF
+                </button>
+                <button class="btn btn-primary" onclick="sendPrompt('Buatkan wireframe halaman User Management lengkap dengan form tambah user, tabel, dan tombol edit/delete untuk MANUX ↗')">
+                    User Management ↗
+                </button>
+                </div>
+            </div>
+            <div id="export-toast" class="export-toast">File berhasil dieksport! (simulasi wireframe)</div>
+                <div class="stat-row">
+                    <div class="sc">
+                    <div class="sc-lbl">Total log hari ini</div>
+                    <div class="sc-val" id="s-total">18</div>
+                    <div class="sc-sub" style="color:var(--text-secondary);">sejak 00:00</div>
+                    </div>
+                    <div class="sc">
+                    <div class="sc-lbl">Error / warning</div>
+                    <div class="sc-val" style="color:#A32D2D;" id="s-err">5</div>
+                    <div class="sc-sub" style="color:#791F1F;">perlu ditinjau</div>
+                    </div>
+                    <div class="sc">
+                    <div class="sc-lbl">Login berhasil</div>
+                    <div class="sc-val" style="color:#27500A;" id="s-ok">9</div>
+                    <div class="sc-sub" style="color:#27500A;">sesi aktif: 4</div>
+                    </div>
+                    <div class="sc">
+                    <div class="sc-lbl">Perubahan sistem</div>
+                    <div class="sc-val" id="s-change">4</div>
+                    <div class="sc-sub" style="color:var(--text-secondary);">user, group, perm</div>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                    <span class="filter-lbl">Tanggal</span>
+                    <input type="date" id="f-date" value="2025-04-14" onchange="filterLogs()">
+                    </div>
+                    <div class="filter-sep"></div>
+                    <div class="filter-group">
+                    <span class="filter-lbl">User</span>
+                    <select id="f-user" onchange="filterLogs()">
+                        <option value="all">Semua user</option>
+                        <option value="admin">admin</option>
+                        <option value="mukgot">mukgot</option>
+                        <option value="safani">safani</option>
+                        <option value="malik">malik</option>
+                        <option value="elpa">elpa</option>
+                    </select>
+                    </div>
+                    <div class="filter-sep"></div>
+                    <div class="filter-group">
+                    <span class="filter-lbl">Tipe</span>
+                    <select id="f-type" onchange="filterLogs()">
+                        <option value="all">Semua tipe</option>
+                        <option value="login">Login / Logout</option>
+                        <option value="user">Perubahan user</option>
+                        <option value="permission">Permission</option>
+                        <option value="group">Group</option>
+                    </select>
+                    </div>
+                    <div class="filter-sep"></div>
+                    <div class="tag-row">
+                    <span class="filter-lbl">Severity</span>
+                    <span class="tag t-all" id="tag-all" onclick="setSev('all')">Semua</span>
+                    <span class="tag t-err" id="tag-error" onclick="setSev('error')">Error</span>
+                    <span class="tag t-warn" id="tag-warning" onclick="setSev('warning')">Warning</span>
+                    <span class="tag t-info" id="tag-info" onclick="setSev('info')">Info</span>
+                    <span class="tag t-ok" id="tag-success" onclick="setSev('success')">Success</span>
+                    </div>
+                </div>
+
+                <div style="border:0.5px solid var(--border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;">
+                    <table class="log-table">
+                    <thead>
+                        <tr>
+                        <th style="width:90px;">Waktu</th>
+                        <th style="width:70px;">User</th>
+                        <th style="width:85px;">Tipe</th>
+                        <th style="width:80px;">Severity</th>
+                        <th>Deskripsi</th>
+                        <th style="width:60px;">Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <span class="pg-info" id="pg-info">Menampilkan 1–8 dari 18 log</span>
+                    <div class="pg-btns">
+                    <button class="pg-btn" onclick="changePage(-1)">&#8592; Prev</button>
+                    <button class="pg-btn active-pg" id="pg1" onclick="goPage(1)">1</button>
+                    <button class="pg-btn" id="pg2" onclick="goPage(2)">2</button>
+                    <button class="pg-btn" id="pg3" onclick="goPage(3)">3</button>
+                    <button class="pg-btn" onclick="changePage(1)">Next &#8594;</button>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+        <script>
+            const ALL_LOGS = [
+            {time:'09:38',user:'malik',type:'login',sev:'error',desc:'Login gagal 3x berturut-turut',ip:'192.168.1.45',cmd:'su -l malik',session:'-'},
+            {time:'09:35',user:'admin',type:'permission',sev:'warning',desc:'chmod 777 pada /etc/passwd',ip:'127.0.0.1',cmd:'chmod 777 /etc/passwd',session:'tty1'},
+            {time:'09:21',user:'admin',type:'permission',sev:'warning',desc:'Permission diubah di /var/log',ip:'127.0.0.1',cmd:'chmod 755 /var/log',session:'tty1'},
+            {time:'09:10',user:'mukgot',type:'login',sev:'success',desc:'Login berhasil dari terminal',ip:'192.168.1.12',cmd:'login mukgot',session:'pts/0'},
+            {time:'08:55',user:'admin',type:'user',sev:'success',desc:'User elpa ditambahkan ke group viewer',ip:'127.0.0.1',cmd:'usermod -aG viewer elpa',session:'tty1'},
+            {time:'08:41',user:'safani',type:'login',sev:'info',desc:'Login berhasil — sesi baru dimulai',ip:'192.168.1.20',cmd:'login safani',session:'pts/1'},
+            {time:'08:30',user:'admin',type:'group',sev:'success',desc:'Group ops berhasil dibuat',ip:'127.0.0.1',cmd:'groupadd ops',session:'tty1'},
+            {time:'08:15',user:'mukgot',type:'user',sev:'info',desc:'Password user malik diubah',ip:'192.168.1.12',cmd:'passwd malik',session:'pts/0'},
+            {time:'07:50',user:'elpa',type:'login',sev:'error',desc:'Login gagal — password salah',ip:'192.168.1.30',cmd:'login elpa',session:'-'},
+            {time:'07:44',user:'admin',type:'permission',sev:'info',desc:'ACL diperbarui untuk /home/mukgot',ip:'127.0.0.1',cmd:'setfacl -m u:mukgot:rwx /home/mukgot',session:'tty1'},
+            {time:'07:30',user:'safani',type:'login',sev:'success',desc:'Re-login berhasil setelah idle',ip:'192.168.1.20',cmd:'login safani',session:'pts/1'},
+            {time:'07:10',user:'admin',type:'user',sev:'success',desc:'User baru zaky berhasil dibuat',ip:'127.0.0.1',cmd:'useradd zaky',session:'tty1'},
+            {time:'06:55',user:'malik',type:'login',sev:'warning',desc:'Login dari IP tidak dikenal',ip:'10.0.0.99',cmd:'login malik',session:'pts/3'},
+            {time:'06:40',user:'admin',type:'group',sev:'info',desc:'User mukgot ditambah ke group dev',ip:'127.0.0.1',cmd:'usermod -aG dev mukgot',session:'tty1'},
+            {time:'06:20',user:'elpa',type:'login',sev:'success',desc:'Login berhasil setelah reset password',ip:'192.168.1.30',cmd:'login elpa',session:'pts/2'},
+            {time:'06:00',user:'admin',type:'user',sev:'success',desc:'User safani diubah jadi ops',ip:'127.0.0.1',cmd:'usermod -g ops safani',session:'tty1'},
+            {time:'05:45',user:'mukgot',type:'permission',sev:'info',desc:'Read permission diperiksa /etc/shadow',ip:'192.168.1.12',cmd:'ls -la /etc/shadow',session:'pts/0'},
+            {time:'05:30',user:'admin',type:'login',sev:'success',desc:'Admin login awal sistem',ip:'127.0.0.1',cmd:'login admin',session:'tty1'},
+            ];
+
+            let sevFilter='all', currentPage=1, filtered=[];
+            const PER_PAGE=8;
+
+            const sevClass={error:'sev-err',warning:'sev-warn',info:'sev-info',success:'sev-ok'};
+            const dotClass={error:'dot-err',warning:'dot-warn',info:'dot-info',success:'dot-ok'};
+            const sevLabel={error:'Error',warning:'Warning',info:'Info',success:'Success'};
+            const typeLabel={login:'Login/Logout',user:'Perubahan user',permission:'Permission',group:'Group'};
+
+            function filterLogs(){
+            const u=document.getElementById('f-user').value;
+            const t=document.getElementById('f-type').value;
+            filtered=ALL_LOGS.filter(l=>{
+                if(u!=='all'&&l.user!==u)return false;
+                if(t!=='all'&&l.type!==t)return false;
+                if(sevFilter!=='all'&&l.sev!==sevFilter)return false;
+                return true;
+            });
+            currentPage=1;
+            renderTable();
+            }
+
+            function setSev(s){
+            sevFilter=s;
+            ['all','error','warning','info','success'].forEach(x=>{
+                const el=document.getElementById('tag-'+x);
+                if(el) el.style.outline = x===s?'2px solid #378ADD':'none';
+            });
+            filterLogs();
+            }
+
+            function renderTable(){
+            const start=(currentPage-1)*PER_PAGE;
+            const page=filtered.slice(start,start+PER_PAGE);
+            const body=document.getElementById('log-body');
+            body.innerHTML='';
+            page.forEach((l,i)=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML=`
+                <td class="mono" style="color:var(--text-secondary);">${l.time}</td>
+                <td><span style="font-weight:500;font-size:12px;">${l.user}</span></td>
+                <td><span style="font-size:10px;color:var(--text-secondary);">${typeLabel[l.type]||l.type}</span></td>
+                <td><span class="sev ${sevClass[l.sev]}"><span class="sev-dot ${dotClass[l.sev]}"></span>${sevLabel[l.sev]}</span></td>
+                <td style="color:var(--text-primary);font-size:12px;">${l.desc}</td>
+                <td><button class="expand-btn" onclick="toggleDetail(${start+i})">Detail</button></td>
+                `;
+                body.appendChild(tr);
+                const det=document.createElement('tr');
+                det.id='det-'+(start+i);
+                det.style.display='none';
+                det.innerHTML=`<td colspan="6" style="padding:6px 10px;">
+                <div class="detail-box">
+                    <div><span class="dl">IP Address</span><br><span class="dv">${l.ip}</span></div>
+                    <div><span class="dl">Session</span><br><span class="dv">${l.session}</span></div>
+                    <div style="grid-column:1/-1;"><span class="dl">Command</span><br><span class="dv">${l.cmd}</span></div>
+                </div></td>`;
+                body.appendChild(det);
+            });
+            const total=filtered.length;
+            const end=Math.min(start+PER_PAGE,total);
+            document.getElementById('pg-info').textContent=`Menampilkan ${total?start+1:0}–${end} dari ${total} log`;
+            const totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
+            [1,2,3].forEach(p=>{
+                const btn=document.getElementById('pg'+p);
+                if(btn){
+                btn.className='pg-btn'+(p===currentPage?' active-pg':'');
+                btn.style.display=p<=totalPages?'':'none';
+                }
+            });
+            updateStats();
+            }
+
+            function toggleDetail(i){
+            const el=document.getElementById('det-'+i);
+            if(el) el.style.display=el.style.display==='none'?'table-row':'none';
+            }
+
+            function changePage(d){
+            const total=Math.ceil(filtered.length/PER_PAGE);
+            currentPage=Math.max(1,Math.min(total,currentPage+d));
+            renderTable();
+            }
+
+            function goPage(p){
+            currentPage=p;
+            renderTable();
+            }
+
+            function updateStats(){
+            const errs=filtered.filter(l=>l.sev==='error'||l.sev==='warning').length;
+            const ok=filtered.filter(l=>l.sev==='success').length;
+            const changes=filtered.filter(l=>l.type!=='login').length;
+            document.getElementById('s-total').textContent=filtered.length;
+            document.getElementById('s-err').textContent=errs;
+            document.getElementById('s-ok').textContent=ok;
+            document.getElementById('s-change').textContent=changes;
+            }
+
+            function doExport(){
+            const t=document.getElementById('export-toast');
+            t.style.display='block';
+            setTimeout(()=>{t.style.display='none';},2500);
+            }
+
+            filtered=[...ALL_LOGS];
+            setSev('all');
+            renderTable();
+        </script>
+</body>
+</html>
