@@ -112,7 +112,7 @@ body{
 
 .ps {
   font-size: 11px;
-  color: var(--text-secondary);
+  color:var(--text-secondary);
   margin-top: 2px;
 }
 
@@ -292,6 +292,13 @@ body{
 .role {
     color: #fff;
     font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.group {
+    color: #fff;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 /* Overlay tetap */

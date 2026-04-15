@@ -58,9 +58,11 @@ function renderTable() {
           ${u.name}
         </div>
       </td>
-
       <td class="role">
         ${u.role}
+      </td>
+      <td class="group">
+        ${u.group}
       </td>
       <td>
         <span class="status ${u.status}">

@@ -10,13 +10,22 @@
     <div class="shell">
         <div class="topbar">
             <div class="topbar-brand">
-            <div class="brand-dot"></div>
-            MANUX
-            <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Management User Linux</span>
+                <div style="display:flex;align-items:center;gap:14px;">
+                <div class="brand-dot"></div>
+                MANUX
+                <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Permissions Control</span>
+                </div>
             </div>
-            <div class="topbar-right">
-            <span class="topbar-time">Mon 14 Apr 2025</span>
-            <div class="avatar">AD</div>
+            <div class="tb-search">
+                <svg width="12" height="12" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+                <input placeholder="Cari resource, user, group...">
+            </div>
+            <div class="tb-right">
+                <div class="notif-btn">
+                    <svg width="14" height="14" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/></svg>
+                    <div class="notif-dot"></div>
+                </div>
+                <div class="ua">AD</div>
             </div>
         </div>
         <div class="sidebar">
@@ -48,6 +57,363 @@
             <a href="MANUX_system_settings.html" >Settings</a>
             </div>
         </div>
-    </div> 
+        <div class="content">
+            <div class="stat">
+                <div class="page-header">
+                    <div class="stat-card">
+                        <div>
+                        <div class="ph">User Management</div>
+                        <div class="ps">Kelola user, role, group, dan status akun dalam sistem</div>
+                        </div>
+                    </div>
+                    <div class="hbts">
+                        <button class="btn btn-red" onclick="revertAll()">
+                            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8a5 5 0 1 0 1.5-3.5L2 2"/><path d="M2 2v4h4"/></svg>
+                            Revert
+                            </button>
+                            <button class="btn btn-blue" onclick="saveAll()">
+                            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8l4 4 6-7"/></svg>
+                            Save Changes
+                        </button>
+                    </div>
+                    <div id="unsaved-banner" style="display:none;background:var(--amber-l);border:1px solid var(--amber-m);border-radius:var(--rad);padding:8px 12px;font-size:12px;color:var(--amber);align-items:center;gap:8px;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11v.5"/></svg>
+                        <span id="unsaved-txt">Ada perubahan yang belum disimpan</span>
+                        <button class="btn btn-amber" style="margin-left:auto;padding:3px 10px;" onclick="saveAll()">Simpan sekarang</button>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-grid">
+                <div class="stat-card"><div class="stat-label">Total resource</div><div class="stat-val">12</div><div class="stat-sub">file &amp; direktori</div></div>
+                <div class="stat-card"><div class="stat-label">Full access</div><div class="stat-val" style="color:var(--red);" id="st-full">2</div><div class="stat-sub">chmod 777</div></div>
+                <div class="stat-card"><div class="stat-label">Restricted</div><div class="stat-val" style="color:var(--green);" id="st-rest">7</div><div class="stat-sub">aman</div></div>
+                <div class="stat-card"><div class="stat-label">Perubahan</div><div class="stat-val" style="color:var(--amber);" id="st-chg">0</div><div class="stat-sub">belum disimpan</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="chmod-card">
+                    <div class="chmod-block">
+                        <div class="chmod-lbl">Simulasi chmod</div>
+                        <input class="chmod-inp" id="chmod-inp" maxlength="3" value="755" oninput="applyChmod(this.value)" placeholder="755">
+                    </div>
+                    <div class="chmod-arrow">&#8594;</div>
+                    <div class="chmod-block">
+                        <div class="chmod-lbl">String permission</div>
+                        <div class="chmod-preview" id="chmod-str">rwxr-xr-x</div>
+                    </div>
+                    <div class="chmod-block">
+                        <div class="chmod-lbl">Bit visual</div>
+                        <div class="chmod-bits" id="chmod-bits"></div>
+                    </div>
+                    <div class="chmod-block" style="flex:1;">
+                        <div class="chmod-lbl">Keterangan</div>
+                        <div class="chmod-explain" id="chmod-explain">Owner: rwx (7) &nbsp;|&nbsp; Group: r-x (5) &nbsp;|&nbsp; Public: r-x (5)</div>
+                    </div>
+                    <button class="btn btn-blue" onclick="applyChmodToSelected()">Terapkan ke resource terpilih</button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="tb-search">
+                    <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+                    <input class="fi-inp" id="res-search" placeholder="Cari nama resource..." oninput="filterResources()">
+                </div>
+                <select class="fi-sel" id="res-type" onchange="filterResources()">
+                    <option value="all">Semua tipe</option>
+                    <option value="dir">Direktori</option>
+                    <option value="file">File</option>
+                    <option value="script">Script</option>
+                </select>
+                <select class="fi-sel" id="res-owner" onchange="filterResources()">
+                    <option value="all">Semua owner</option>
+                    <option value="admin">admin</option>
+                    <option value="mukgot">mukgot</option>
+                    <option value="safani">safani</option>
+                </select>
+            </div>
+            <div class="bulk-bar" id="bulk-bar">
+                <svg width="13" height="13" fill="none" stroke="var(--blue)" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8l4 4 6-7"/></svg>
+                <span class="bulk-txt" id="bulk-txt">0 resource dipilih</span>
+                <div style="margin-left:auto;display:flex;gap:6px;">
+                    <button class="btn" style="font-size:10px;padding:3px 9px;" onclick="bulkSet(7,7,7)">Semua rwx (777)</button>
+                    <button class="btn" style="font-size:10px;padding:3px 9px;" onclick="bulkSet(6,4,4)">Standard (644)</button>
+                    <button class="btn" style="font-size:10px;padding:3px 9px;" onclick="bulkSet(7,5,5)">Web (755)</button>
+                    <button class="btn btn-red" style="font-size:10px;padding:3px 9px;" onclick="bulkSet(0,0,0)">Revoke all</button>
+                </div>
+            </div>
+            <div class="stat-card">
+            <div class="tbl-wrap">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th style="width:32px;"><input type="checkbox" class="chk-all" id="chk-all" onchange="toggleAll(this.checked)"></th>
+                        <th style="width:180px;color:var(--text-primary);">Resource</th>
+                        <th style="width:75px;color:var(--text-primary);">Owner</th>
+                        <th style="width:75px;color:var(--text-primary);">Group</th>
+                        <th>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:1px;">
+                            <div>
+                            <div class="grp-hd" style="color:var(--purple);">&#9632; Owner</div>
+                            <div style="display:flex;gap:2px;justify-content:center;">
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">r</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">w</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">x</span>
+                            </div>
+                            </div>
+                            <div>
+                            <div class="grp-hd" style="color:var(--blue);">&#9632; Group</div>
+                            <div style="display:flex;gap:2px;justify-content:center;">
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">r</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">w</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">x</span>
+                            </div>
+                            </div>
+                            <div>
+                            <div class="grp-hd" style="color:var(--text-secondary);">&#9632; Public</div>
+                            <div style="display:flex;gap:2px;justify-content:center;">
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">r</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">w</span>
+                                <span style="font-size:9px;color:var(--text-muted);width:24px;text-align:center;">x</span>
+                            </div>
+                            </div>
+                        </div>
+                        </th>
+                        <th style="width:70px;color:var(--text-primary);">chmod</th>
+                        <th style="width:30px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="perm-body"></tbody>
+                </table>
+                <div id="save-toast" style="display:none;background:var(--green-l);border:1px solid var(--green-m);border-radius:var(--rad);padding:8px 14px;font-size:12px;color:var(--green);text-align:center;"></div>
+            </div>
+            </div>
+    </div>
+    <script>
+        const RESOURCES=[
+        {id:1,name:'/etc/passwd',type:'file',owner:'admin',group:'admin',perm:[6,4,4],changed:false},
+        {id:2,name:'/home/mukgot',type:'dir',owner:'mukgot',group:'dev',perm:[7,5,5],changed:false},
+        {id:3,name:'/var/log',type:'dir',owner:'admin',group:'admin',perm:[7,5,5],changed:false},
+        {id:4,name:'/usr/bin/bash',type:'script',owner:'admin',group:'admin',perm:[7,5,5],changed:false},
+        {id:5,name:'/home/safani',type:'dir',owner:'safani',group:'ops',perm:[7,5,0],changed:false},
+        {id:6,name:'/tmp/session.log',type:'file',owner:'admin',group:'admin',perm:[6,4,4],changed:false},
+        {id:7,name:'/etc/shadow',type:'file',owner:'admin',group:'admin',perm:[6,0,0],changed:false},
+        {id:8,name:'/usr/local/manux',type:'dir',owner:'admin',group:'dev',perm:[7,7,5],changed:false},
+        ];
+
+        let resources=RESOURCES.map(r=>({...r,perm:[...r.perm]}));
+        let origPerm=RESOURCES.map(r=>({id:r.id,perm:[...r.perm]}));
+        let selected=new Set();
+        let filtered=[...resources];
+        let dark=false;
+
+        const BIT_NAMES=[['r','w','x'],['r','w','x'],['r','w','x']];
+        const ON_CLS=['on-r','on-w','on-x'];
+        const TIPS=['read: bisa membaca file/direktori','write: bisa mengubah isi','execute: bisa menjalankan / masuk direktori'];
+
+        function numToRwx(n){
+        const bits=[(n&4)?'r':'-',(n&2)?'w':'-',(n&1)?'x':'-'];
+        return bits.join('');
+        }
+        function permToStr(p){return p.map(numToRwx).join('');}
+        function permToChmod(p){return p.join('');}
+
+        function renderTable(){
+        const q=document.getElementById('res-search').value.toLowerCase();
+        const t=document.getElementById('res-type').value;
+        const o=document.getElementById('res-owner').value;
+        filtered=resources.filter(r=>{
+            if(q&&!r.name.toLowerCase().includes(q))return false;
+            if(t!=='all'&&r.type!==t)return false;
+            if(o!=='all'&&r.owner!==o)return false;
+            return true;
+        });
+        const body=document.getElementById('perm-body');
+        body.innerHTML='';
+        filtered.forEach(r=>{
+            const tr=document.createElement('tr');
+            if(r.changed)tr.classList.add('changed');
+            const iconCls=r.type==='dir'?'ri-dir':r.type==='script'?'ri-script':'ri-file';
+            const iconChar=r.type==='dir'?'D':r.type==='script'?'S':'F';
+            const chkd=selected.has(r.id)?'checked':'';
+            let pwxCells='';
+            for(let g=0;g<3;g++){
+            const num=r.perm[g];
+            for(let b=2;b>=0;b--){
+                const bitVal=1<<b;
+                const isOn=!!(num&bitVal);
+                const bitIdx=2-b;
+                const tipText=`${['Owner','Group','Public'][g]}: ${TIPS[bitIdx]}`;
+                const onCls=isOn?ON_CLS[bitIdx]:'';
+                pwxCells+=`<div class="tip-wrap"><button class="rwx-toggle ${onCls}" onclick="toggleBit(${r.id},${g},${b})" title="${tipText}">${BIT_NAMES[g][bitIdx]}<div class="tip">${tipText}</div></button></div>`;
+            }
+            if(g<2)pwxCells+=`<div class="rwx-sep"></div>`;
+            }
+            const chmodNum=permToChmod(r.perm);
+            const changedDot=r.changed?`<div class="changed-dot vis"></div>`:'';
+            tr.innerHTML=`
+            <td><input type="checkbox" class="chk-all" ${chkd} onchange="toggleSelect(${r.id},this.checked)"></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                <div class="res-icon ${iconCls}">${iconChar}</div>
+                <div>
+                    <div style="font-size:12px;font-weight:500;font-family:monospace;color:var(--text-primary);">${r.name}</div>
+                    <div style="font-size:10px;color:var(--text-muted);">${r.type}</div>
+                </div>
+                ${changedDot}
+                </div>
+            </td>
+            <td><span class="owner-pill op-own">${r.owner}</span></td>
+            <td><span class="owner-pill op-grp">${r.group}</span></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:2px;">
+                ${pwxCells}
+                </div>
+            </td>
+            <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--blue);">${chmodNum}</td>
+            <td>${changedDot}</td>
+            `;
+            body.appendChild(tr);
+        });
+        updateStats();
+        updateBulkBar();
+        }
+
+        function toggleBit(id,group,bit){
+        const r=resources.find(x=>x.id===id);
+        if(!r)return;
+        const orig=origPerm.find(x=>x.id===id);
+        r.perm[group]^=(1<<bit);
+        r.changed=JSON.stringify(r.perm)!==JSON.stringify(orig.perm);
+        renderTable();
+        checkUnsaved();
+        updateChmodSimFromSelected();
+        }
+
+        function toggleSelect(id,checked){
+        if(checked)selected.add(id);else selected.delete(id);
+        updateBulkBar();
+        renderTable();
+        }
+
+        function toggleAll(checked){
+        filtered.forEach(r=>{if(checked)selected.add(r.id);else selected.delete(r.id);});
+        updateBulkBar();
+        renderTable();
+        }
+
+        function updateBulkBar(){
+        const bar=document.getElementById('bulk-bar');
+        const txt=document.getElementById('bulk-txt');
+        if(selected.size>0){bar.classList.add('visible');txt.textContent=`${selected.size} resource dipilih`;}
+        else bar.classList.remove('visible');
+        }
+
+        function bulkSet(o,g,p){
+        resources.forEach(r=>{
+            if(!selected.has(r.id))return;
+            const orig=origPerm.find(x=>x.id===r.id);
+            r.perm=[o,g,p];
+            r.changed=JSON.stringify(r.perm)!==JSON.stringify(orig.perm);
+        });
+        renderTable();
+        checkUnsaved();
+        }
+
+        function applyChmod(val){
+        const digits=val.replace(/[^0-7]/g,'').slice(0,3);
+        if(digits.length<3){updateChmodBits([7,5,5]);return;}
+        const nums=digits.split('').map(Number);
+        updateChmodBits(nums);
+        document.getElementById('chmod-inp').value=digits;
+        }
+
+        function updateChmodBits(nums){
+        const str=nums.map(numToRwx).join('');
+        document.getElementById('chmod-str').textContent=str;
+        const names=['Owner','Group','Public'];
+        document.getElementById('chmod-explain').textContent=nums.map((n,i)=>`${names[i]}: ${numToRwx(n)} (${n})`).join('  |  ');
+        const bitsEl=document.getElementById('chmod-bits');
+        bitsEl.innerHTML='';
+        nums.forEach((n,gi)=>{
+            if(gi>0){const sep=document.createElement('div');sep.className='csep';bitsEl.appendChild(sep);}
+            for(let b=2;b>=0;b--){
+            const isOn=!!(n&(1<<b));
+            const s=document.createElement('span');
+            s.className='cbit '+(isOn?'on':'off');
+            s.textContent=isOn?'rwx'[2-b]:'-';
+            bitsEl.appendChild(s);
+            }
+        });
+        }
+
+        function applyChmodToSelected(){
+        const val=document.getElementById('chmod-inp').value;
+        if(val.length!==3)return;
+        const nums=val.split('').map(Number);
+        bulkSet(nums[0],nums[1],nums[2]);
+        }
+
+        function updateChmodSimFromSelected(){
+        if(selected.size===1){
+            const id=[...selected][0];
+            const r=resources.find(x=>x.id===id);
+            if(r){
+            document.getElementById('chmod-inp').value=r.perm.join('');
+            updateChmodBits(r.perm);
+            }
+        }
+        }
+
+        function checkUnsaved(){
+        const hasChanges=resources.some(r=>r.changed);
+        const banner=document.getElementById('unsaved-banner');
+        banner.style.display=hasChanges?'flex':'none';
+        const cnt=resources.filter(r=>r.changed).length;
+        document.getElementById('unsaved-txt').textContent=`${cnt} resource memiliki perubahan yang belum disimpan`;
+        document.getElementById('sb-chg').style.display=hasChanges?'':'none';
+        document.getElementById('st-chg').textContent=cnt;
+        }
+
+        function saveAll(){
+        origPerm=resources.map(r=>({id:r.id,perm:[...r.perm]}));
+        resources.forEach(r=>r.changed=false);
+        renderTable();
+        checkUnsaved();
+        const t=document.getElementById('save-toast');
+        t.textContent='Semua perubahan permission berhasil disimpan!';
+        t.style.display='block';
+        setTimeout(()=>t.style.display='none',2800);
+        }
+
+        function revertAll(){
+        resources.forEach(r=>{
+            const orig=origPerm.find(x=>x.id===r.id);
+            r.perm=[...orig.perm];
+            r.changed=false;
+        });
+        renderTable();
+        checkUnsaved();
+        const t=document.getElementById('save-toast');
+        t.style.background='var(--amber-l)';t.style.color='var(--amber)';t.style.borderColor='var(--amber-m)';
+        t.textContent='Semua perubahan dikembalikan ke kondisi awal.';
+        t.style.display='block';
+        setTimeout(()=>{t.style.display='none';t.style.background='';t.style.color='';t.style.borderColor='';},2800);
+        }
+
+        function filterResources(){renderTable();}
+
+        function updateStats(){
+        const full=resources.filter(r=>r.perm[2]===7).length;
+        const rest=resources.filter(r=>r.perm[2]===0).length;
+        document.getElementById('st-full').textContent=full;
+        document.getElementById('st-rest').textContent=rest;
+        }
+
+        function toggleDark(){
+        dark=!dark;
+        document.getElementById('shell').setAttribute('data-dark',dark?'1':'0');
+        }
+
+        applyChmod('755');
+        renderTable();
+    </script>
 </body>
 </html>

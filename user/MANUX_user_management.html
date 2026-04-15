@@ -13,7 +13,7 @@
         <div class="topbar">
             <div style="display:flex;align-items:center;gap:16px;">
             <div class="topbar-brand"><div class="brand-dot"></div>MANUX</div>
-            <div class="breadcrumb" style="font-size:11px;color:var(--text-secondary);font-weight:400;">Dashboard / <span >Activity Log</span></div>
+            <div class="breadcrumb" style="font-size:11px;color:var(--text-secondary);font-weight:400;">User Management</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:11px;color:var(--text-secondary);">Mon 14 Apr 2025</span>
@@ -28,7 +28,7 @@
             </div>
             <div class="nav-i active">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-                <a href="user/MANUX_user_management.html" >User Management</a>
+                <a href="MANUX_user_management.html" >User Management</a>
             </div>
             <div class="nav-item">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
@@ -104,6 +104,7 @@
                         <tr>
                         <th style="width:38px;"></th>
                         <th class="ps" style="width:110px;">Username</th>
+                        <th class="ps" style="width:70px;">Role</th>
                         <th class="ps" style="width:70px;">Group</th>
                         <th class="ps" style="width:65px;">Status</th>
                         <th class="ps" style="width:80px;">Aksi</th>
@@ -132,9 +133,9 @@
                         </div>
                         <div class="form-row">
                             <div>
-                            <div class="ps">Group *</div>
+                            <div class="ps">Role *</div>
                             <select class="fi" id="f-role">
-                                <option value="">Pilih Group...</option>
+                                <option value="">Pilih Role...</option>
                                 <option value="admin">Admin</option>
                                 <option value="dev">Dev</option>
                                 <option value="ops">Ops</option>
@@ -143,6 +144,15 @@
                             </div>
                             <div>
                         </div>
+                        <div>
+                            <div class="ps">Group</div>
+                            <select class="fi" id="f-group">
+                                <option value="">Pilih Group...</option>
+                                <option value="admin">Admin</option>
+                                <option value="dev">Dev</option>
+                                <option value="ops">Ops</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
                         <div>
                             <div class="ps">Password sementara *</div>
                             <input class="fi" id="f-pass" placeholder="min. 8 karakter" type="password" oninput="validateForm()">
