@@ -9,18 +9,49 @@
 <body>
     <div class="shell">
         <div class="topbar">
-            <div style="display:flex;align-items:center;gap:16px;">
-            <div class="topbar-brand"><div class="brand-dot"></div>MANUX</div>
-            <div class="breadcrumb" style="font-size:11px;color:var(--text-secondary);font-weight:400;">Activity Log</div>
+            <!-- LEFT -->
+            <div class="topbar-brand">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div class="brand-dot"></div>
+                MANUX
+                <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Group Management</span>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:11px;color:var(--text-secondary);">Mon 14 Apr 2025</span>
-            <div class="avatar">AD</div>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="tb-search">
+                <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                <circle cx="7" cy="7" r="4"/>
+                <path d="M10.5 10.5L13 13"/>
+                </svg>
+                <input placeholder="Cari resource, user, group..." oninput="searchGlobal(this.value)">
+            </div>
+
+            <!-- RIGHT -->
+            <div class="tb-right">
+
+                <!-- NOTIF -->
+                <div class="icon-btn">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16">
+                    <path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/>
+                    <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                </svg>
+                <div class="notif-dot"></div>
+                </div>
+
+                <!-- PROFILE -->
+                <div class="profile">
+                <div class="pa">AD</div>
+                <span class="pname">admin</span>
+                <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                    <path d="M4 6l4 4 4-4"/>
+                </svg>
+                </div>
             </div>
         </div>
         <div class="sidebar">
             <div class="nav-label">Menu</div>
-            <div class="nav-item item">
+            <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
             <a href="MANUX_dashboard.html" >Dashboard</a>
             </div>
@@ -36,26 +67,24 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
             <a href="MANUX_permissions.html" >Permissions</a>
             </div>
-            <div class="nav-i active">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-                <a href="MANUX_activity_log.html" >Activity Log</a>
-                <span class="nbadge">3</span>
+            <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+            <a href="MANUX_activity_log.html" >Activity Log</a>
+            <span class="nav-badge">3</span>
             </div>
             <div class="nav-label" style="margin-top:8px;">System</div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-            <a href="MANUX_system_settings.html" >Settings</a>
+            <a href="../MANUX_system_settings.html" >Settings</a>
             </div>
         </div>
         <div class="content">
             <div class="stat">
-                <div class="page-header">
-                <div class="stat-card">
+                <div class="ph">
                 <div>
                 <div class="page-title">Activity log</div>
                 <div class="page-sub">Semua aktivitas sistem — login, perubahan user/group, permission</div>
                 </div>
-            </div>
                 <div class="hdr-actions">
                 <button class="btn" onclick="doExport()">
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
@@ -113,8 +142,7 @@
                     <div class="filter-sep"></div>
                     <div class="filter-group">
                     <span class="filter-lbl">User</span>
-                    <div class="stat-card">
-                    <select id="f-user" onchange="filterLogs()">
+                    <select class="fi-sel" style="font-size: 16px;" id="f-user" onchange="filterLogs()">
                         <option value="all">Semua user</option>
                         <option value="admin">admin</option>
                         <option value="mukgot">mukgot</option>
@@ -123,19 +151,16 @@
                         <option value="elpa">elpa</option>
                     </select>
                     </div>
-                    </div>
                     <div class="filter-sep"></div>
                     <div class="filter-group">
                     <span class="filter-lbl">Tipe</span>
-                    <div class="stat-card">
-                    <select id="f-type" onchange="filterLogs()">
+                    <select class="fi-sel" style="font-size: 16px;" id="f-type" onchange="filterLogs()">
                         <option value="all">Semua tipe</option>
                         <option value="login">Login / Logout</option>
                         <option value="user">Perubahan user</option>
                         <option value="permission">Permission</option>
                         <option value="group">Group</option>
                     </select>
-                    </div>
                     </div>
                     <div class="filter-sep"></div>
                     <div class="tag-row">

@@ -54,18 +54,36 @@ document.querySelectorAll('.user-row').forEach(row => {
 </head>
 <body>
 <div class="shell">
+        <div class="topbar">
+            <!-- LEFT -->
+            <div class="topbar-brand">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div class="brand-dot"></div>
+                MANUX
+                <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Dashboard</span>
+            </div>
+            </div>
+            <!-- RIGHT -->
+            <div class="tb-right">
+                <!-- NOTIF -->
+                <div class="icon-btn">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16">
+                    <path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/>
+                    <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                </svg>
+                <div class="notif-dot"></div>
+                </div>
 
-  <div class="topbar">
-    <div class="topbar-brand">
-      <div class="brand-dot"></div>
-      MANUX
-      <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Dashboard</span>
-    </div>
-    <div class="topbar-right">
-      <span class="topbar-time">Mon 14 Apr 2025</span>
-      <div class="avatar">AD</div>
-    </div>
-  </div>
+                <!-- PROFILE -->
+                <div class="profile">
+                <div class="pa">AD</div>
+                <span class="pname">admin</span>
+                <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                    <path d="M4 6l4 4 4-4"/>
+                </svg>
+                </div>
+            </div>
+        </div>
 
   <div class="sidebar">
     <div class="nav-label">Menu</div>

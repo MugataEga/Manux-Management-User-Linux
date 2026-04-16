@@ -21,30 +21,6 @@
   --radius:14px;
 }
 
-/* ================= BODY ================= */
-body{
-  background:linear-gradient(180deg,#1B1B1B,#232323);
-  font-family:sans-serif;
-}
-
-/* ================= LAYOUT ================= */
-.shell{
-  display:grid;
-  grid-template-columns:220px 1fr;
-  grid-template-rows:60px 1fr;
-  min-height:100vh;
-  background:var(--bg-main);
-  border:0.5px solid var(--color-border-tertiary);
-  border-radius:var(--border-radius-lg);
-  overflow:hidden;
-}
-
-/* ================= SIDEBAR ================= */
-.sidebar {
-  background: var(--background-secondary);
-  border-right: 0.5px solid var(--border-tertiary);
-  padding: 10px 0;
-}
 
 .ns {
   font-size: 10px;

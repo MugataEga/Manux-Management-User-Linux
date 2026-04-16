@@ -2,21 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MANUX - Permissions</title>
+    <meta name="viewport" content="width=device-width, initial-stat-cardale=1.0">
+    <title>MANUX - Group Management</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
     <div class="shell">
         <div class="topbar">
+            <!-- LEFT -->
             <div class="topbar-brand">
-            <div class="brand-dot"></div>
-            MANUX
-            <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Group Management</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div class="brand-dot"></div>
+                MANUX
+                <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Group Management</span>
             </div>
-            <div class="topbar-right">
-            <span class="topbar-time">Mon 14 Apr 2025</span>
-            <div class="avatar">AD</div>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="tb-search">
+                <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                <circle cx="7" cy="7" r="4"/>
+                <path d="M10.5 10.5L13 13"/>
+                </svg>
+                <input placeholder="Cari resource, user, group..." oninput="searchGlobal(this.value)">
+            </div>
+
+            <!-- RIGHT -->
+            <div class="tb-right">
+
+                <!-- NOTIF -->
+                <div class="icon-btn">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16">
+                    <path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/>
+                    <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                </svg>
+                <div class="notif-dot"></div>
+                </div>
+
+                <!-- PROFILE -->
+                <div class="profile">
+                <div class="pa">AD</div>
+                <span class="pname">admin</span>
+                <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                    <path d="M4 6l4 4 4-4"/>
+                </svg>
+                </div>
             </div>
         </div>
         <div class="sidebar">
@@ -31,10 +61,10 @@
             </div>
             <div class="nav-item active">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-            <a href="grup/MANUX_group_management.html" >Group Management</a>
+            <a href="MANUX_group_management.html" >Group Management</a>
             </div>
             <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
             <a href="../MANUX_permissions.html" >Permissions</a>
             </div>
             <div class="nav-item">
@@ -48,6 +78,446 @@
             <a href="../MANUX_system_settings.html" >Settings</a>
             </div>
         </div>
-    </div> 
+        
+        <!-- MAIN CONTENT -->
+        <div class="content">
+            <!-- PAGE HEADER -->
+            <div class="ph">
+            <div>
+                <div class="pt">Group Management</div>
+                <div class="ps"><span>Atur member, role, dan relasi antar grup — representasi kontrol akses berbasis grup</span></div>
+            </div>
+            <div class="hbts">
+                <button class="btn btn-red" onclick="openBulkDelete()" id="bulk-del-btn" style="display:none;">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 4h10M6 4V2h4v2M5 4v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4"/></svg>
+                Hapus Terpilih
+                </button>
+                <button class="btn btn-green" onclick="openCreateModal()">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>
+                Buat Group
+                </button>
+            </div>
+            </div>
+            <!-- STAT CARDS -->
+            <div class="stat-row">
+                <div class="stat-card"><div class="stat-label">Total group</div><div class="stat-val" id="st-total">7</div><div class="stat-sub">terdaftar</div></div>
+                <div class="stat-card"><div class="stat-label">Total member</div><div class="stat-val" id="st-members">24</div><div class="stat-sub">di semua group</div></div>
+                <div class="stat-card"><div class="stat-label">Group aktif</div><div class="stat-val" style="color:var(--green);" id="st-active">6</div><div class="stat-sub">ada member</div></div>
+                <div class="stat-card"><div class="stat-label">Dibuat bulan ini</div><div class="stat-val" style="color:var(--blue);">3</div><div class="stat-sub">group baru</div></div>
+            </div>
+            <!-- FILTERS -->
+            <div class="filter-row">
+            <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+            <input class="tb-search" id="grp-search" placeholder="Cari nama group..." oninput="filterGroups()" style="min-width:200px;">
+            <select class="fi-sel" id="f-members" onchange="filterGroups()">
+                <option value="all">Semua ukuran</option>
+                <option value="empty">Kosong (0)</option>
+                <option value="small">Kecil (1-3)</option>
+                <option value="medium">Sedang (4-8)</option>
+                <option value="large">Besar (9+)</option>
+            </select>
+            <select class="fi-sel" id="f-sort" onchange="filterGroups()">
+                <option value="name">Urutkan: Nama</option>
+                <option value="members">Urutkan: Member</option>
+                <option value="date">Urutkan: Tanggal</option>
+            </select>
+            </div>
+            <!-- BULK BAR -->
+            <div class="bulk-bar" id="bulk-bar">
+                <svg width="13" height="13" fill="none" stroke="var(--blue)" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8l4 4 6-7"/></svg>
+                <span class="bulk-txt" id="bulk-txt">0 group dipilih</span>
+                <div style="margin-left:auto;">
+                    <button class="btn btn-red btn-sm" onclick="openBulkDelete()">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:11px;height:11px;"><path d="M3 4h10M6 4V2h4v2M5 4v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4"/></svg>
+                    Hapus semua
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABLE + DETAIL -->
+            <div class="sp-col" id="main-area">
+                <div class="tbl-card">
+                    <table class="tbl">
+                    <thead>
+                        <tr>
+                        <th style="width:36px;"><input type="checkbox" class="chk" id="chk-all" onchange="toggleAllGroups(this.checked)"></th>
+                        <th style="width:160px;">Nama group</th>
+                        <th style="width:60px;">GID</th>
+                        <th style="width:70px;">Members</th>
+                        <th>Deskripsi</th>
+                        <th style="width:80px;">Dibuat</th>
+                        <th style="width:120px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grp-tbody"></tbody>
+                    </table>
+                    <div class="empty-state" id="empty-state" style="display:none;">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="17" cy="17" r="4"/></svg>
+                    <div style="font-size:13px;margin-bottom:4px;color:var(--text-secondary);">Belum ada group</div>
+                    <div style="font-size:11px;">Buat group pertama untuk memulai</div>
+                    </div>
+                </div>
+                <!-- DETAIL PANEL -->
+                <div class="detail-panel" id="detail-panel" style="display:none;">
+                    <div class="dp-header">
+                    <div class="dp-avatar" id="dp-avatar"></div>
+                    <div>
+                        <div class="dp-name" id="dp-name">—</div>
+                        <div class="dp-gid" id="dp-gid">GID: —</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="closeDetail()" style="margin-left:auto;">✕</button>
+                    </div>
+
+                    <div>
+                    <div class="dp-section">Members (<span id="dp-count">0</span>)</div>
+                    <div id="member-list"></div>
+                    <div id="drag-hint" style="font-size:10px;color:var(--text-muted);margin-top:6px;display:none;">&#9776; Drag untuk ubah urutan / pindah ke group lain</div>
+                    </div>
+
+                    <div>
+                    <div class="dp-section">Tambah member</div>
+                    <div class="add-member-row">
+                        <input class="add-inp" id="add-member-inp" placeholder="Ketik username..." oninput="showSuggestions(this.value)">
+                        <button class="btn btn-green btn-sm" onclick="addMemberFromInput()">+ Add</button>
+                    </div>
+                    <div class="suggestions" id="suggestions"></div>
+                    </div>
+
+                    <div>
+                    <div class="dp-section">Activity log</div>
+                    <div class="act-log" id="dp-act-log"></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- TOAST -->
+            <div class="toast" id="toast"></div>
+            <!-- CREATE MODAL -->
+            <div class="modal-overlay" id="create-modal">
+                <div class="modal">
+                    <div class="modal-title">Buat group baru</div>
+                    <div class="modal-sub">Group akan langsung terdaftar di sistem MANUX</div>
+                    <div class="modal-field">
+                    <div class="modal-lbl">Nama group *</div>
+                    <input class="modal-inp" id="new-grp-name" placeholder="contoh: backend-dev" oninput="validateGroupName()">
+                    <div class="err-msg" id="name-err">Nama group sudah dipakai!</div>
+                    </div>
+                    <div class="modal-field">
+                    <div class="modal-lbl">Deskripsi</div>
+                    <input class="modal-inp" id="new-grp-desc" placeholder="contoh: Tim backend development">
+                    </div>
+                    <div class="modal-field">
+                    <div class="modal-lbl">GID (opsional — otomatis jika kosong)</div>
+                    <input class="modal-inp" id="new-grp-gid" placeholder="contoh: 1010" type="number">
+                    </div>
+                    <div class="modal-btns">
+                    <button class="btn" onclick="closeCreateModal()">Batal</button>
+                    <button class="btn btn-green" id="btn-create" onclick="createGroup()">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:13px;height:13px;"><path d="M3 8l4 4 6-7"/></svg>
+                        Buat Group
+                    </button>
+                    </div>
+                </div>
+            </div>
+            <!-- DELETE CONFIRM MODAL -->
+            <div class="modal-overlay" id="delete-modal">
+            <div class="modal">
+                <div class="modal-title" style="color:var(--red);">Hapus group?</div>
+                <div class="modal-sub" id="del-modal-sub">Group dan semua konfigurasi akan dihapus permanen. Aksi ini tidak bisa dibatalkan.</div>
+                <div class="modal-btns">
+                <button class="btn" onclick="closeDeleteModal()">Batal</button>
+                <button class="btn btn-red" onclick="confirmDelete()">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:13px;height:13px;"><path d="M3 4h10M6 4V2h4v2M5 4v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4"/></svg>
+                    Ya, hapus
+                </button>
+                </div>
+            </div>
+            </div>
+        </div>
+<script>
+const COLORS=['#4DA3FF','#6DBE45','#C98A2E','#E05252','#a78bfa','#34d399','#f472b6'];
+const BG_COLORS=['rgba(77,163,255,.18)','rgba(109,190,69,.18)','rgba(201,138,46,.18)','rgba(224,82,82,.18)','rgba(167,139,250,.18)','rgba(52,211,153,.18)','rgba(244,114,182,.18)'];
+
+const ALL_USERS=['mukgot','safani','malik','elpa','kirana','zaky','adinda','multazam','dhida','neisya','rasyid'];
+
+let groups=[
+  {id:1,name:'admin',gid:1000,desc:'Superuser group — full system access',members:[{u:'admin',role:'owner'},{u:'mukgot',role:'member'}],created:'24 Mar 2025',color:0},
+  {id:2,name:'dev',gid:1001,desc:'Developer team group',members:[{u:'mukgot',role:'owner'},{u:'malik',role:'member'},{u:'kirana',role:'member'},{u:'zaky',role:'member'}],created:'24 Mar 2025',color:1},
+  {id:3,name:'ops',gid:1002,desc:'Operations & deployment team',members:[{u:'safani',role:'owner'},{u:'dhida',role:'member'},{u:'rasyid',role:'member'}],created:'31 Mar 2025',color:2},
+  {id:4,name:'viewer',gid:1003,desc:'Read-only access group',members:[{u:'elpa',role:'owner'},{u:'adinda',role:'member'},{u:'neisya',role:'member'}],created:'07 Apr 2025',color:3},
+  {id:5,name:'backend',gid:1004,desc:'Backend service accounts',members:[{u:'mukgot',role:'owner'},{u:'malik',role:'member'}],created:'07 Apr 2025',color:4},
+  {id:6,name:'frontend',gid:1005,desc:'Frontend & UI team',members:[{u:'kirana',role:'owner'},{u:'zaky',role:'member'},{u:'adinda',role:'member'}],created:'14 Apr 2025',color:5},
+  {id:7,name:'empty-group',gid:1006,desc:'Belum ada member',members:[],created:'14 Apr 2025',color:6},
+];
+let nextGid=1007, nextId=8;
+let filtered=[...groups];
+let selected=new Set();
+let activeGroupId=null;
+let deleteTarget=null;
+let actLogs={};
+groups.forEach(g=>{actLogs[g.id]=[];});
+
+function initials(n){return n.slice(0,2).toUpperCase();}
+function colorOf(g){return COLORS[g.color%COLORS.length];}
+function bgOf(g){return BG_COLORS[g.color%BG_COLORS.length];}
+
+function renderTable(){
+  const q=document.getElementById('grp-search').value.toLowerCase();
+  const fm=document.getElementById('f-members').value;
+  const fs=document.getElementById('f-sort').value;
+  filtered=groups.filter(g=>{
+    if(q&&!g.name.toLowerCase().includes(q)&&!g.desc.toLowerCase().includes(q))return false;
+    const mc=g.members.length;
+    if(fm==='empty'&&mc!==0)return false;
+    if(fm==='small'&&(mc<1||mc>3))return false;
+    if(fm==='medium'&&(mc<4||mc>8))return false;
+    if(fm==='large'&&mc<9)return false;
+    return true;
+  });
+  if(fs==='members')filtered.sort((a,b)=>b.members.length-a.members.length);
+  else if(fs==='name')filtered.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const tbody=document.getElementById('grp-tbody');
+  tbody.innerHTML='';
+  document.getElementById('empty-state').style.display=filtered.length?'none':'block';
+  filtered.forEach(g=>{
+    const tr=document.createElement('tr');
+    if(selected.has(g.id))tr.classList.add('selected');
+    if(activeGroupId===g.id)tr.classList.add('active-row');
+    const mems=g.members.slice(0,3).map(m=>`<div class="m-avatar" style="width:20px;height:20px;font-size:9px;background:${bgOf(g)};color:${colorOf(g)};">${initials(m.u)}</div>`).join('');
+    const more=g.members.length>3?`<span style="font-size:10px;color:var(--text-muted);">+${g.members.length-3}</span>`:'';
+    tr.innerHTML=`
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="chk" ${selected.has(g.id)?'checked':''} onchange="toggleSelectGroup(${g.id},this.checked)"></td>
+      <td onclick="openDetail(${g.id})">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div class="gi-avatar" style="background:${bgOf(g)};color:${colorOf(g)};">${initials(g.name)}</div>
+          <div>
+            <div style="font-weight:600;font-size:12px;font-family:monospace;">${g.name}</div>
+            ${g.members.length===0?`<div style="font-size:10px;color:var(--text-muted);">Kosong</div>`:''}
+          </div>
+        </div>
+      </td>
+      <td onclick="openDetail(${g.id})" style="font-family:monospace;font-size:12px;color:var(--text-muted);">${g.gid}</td>
+      <td onclick="openDetail(${g.id})">
+        <div style="display:flex;align-items:center;gap:3px;">${mems}${more}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${g.members.length} user</div>
+      </td>
+      <td onclick="openDetail(${g.id})" style="color:var(--text-secondary);font-size:11px;">${g.desc}</td>
+      <td onclick="openDetail(${g.id})" style="font-size:11px;color:var(--text-muted);">${g.created}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="action-cell">
+          <button class="btn btn-blue btn-sm" onclick="openDetail(${g.id})">View</button>
+          <button class="btn btn-red btn-sm" onclick="openDeleteSingle(${g.id})">Del</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateStats();
+  updateBulkUI();
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent=groups.length;
+  document.getElementById('st-members').textContent=groups.reduce((a,g)=>a+g.members.length,0);
+  document.getElementById('st-active').textContent=groups.filter(g=>g.members.length>0).length;
+}
+
+function toggleSelectGroup(id,checked){
+  if(checked)selected.add(id);else selected.delete(id);
+  updateBulkUI();renderTable();
+}
+function toggleAllGroups(checked){
+  filtered.forEach(g=>{if(checked)selected.add(g.id);else selected.delete(g.id);});
+  updateBulkUI();renderTable();
+}
+function updateBulkUI(){
+  const bar=document.getElementById('bulk-bar');
+  const txt=document.getElementById('bulk-txt');
+  const delBtn=document.getElementById('bulk-del-btn');
+  if(selected.size>0){bar.classList.add('vis');txt.textContent=`${selected.size} group dipilih`;delBtn.style.display='inline-flex';}
+  else{bar.classList.remove('vis');delBtn.style.display='none';}
+}
+
+function openDetail(id){
+  activeGroupId=id;
+  const g=groups.find(x=>x.id===id);
+  if(!g)return;
+  document.getElementById('detail-panel').style.display='flex';
+  document.getElementById('dp-avatar').style.background=bgOf(g);
+  document.getElementById('dp-avatar').style.color=colorOf(g);
+  document.getElementById('dp-avatar').textContent=initials(g.name);
+  document.getElementById('dp-name').textContent=g.name;
+  document.getElementById('dp-gid').textContent=`GID: ${g.gid}  ·  ${g.desc}`;
+  document.getElementById('dp-count').textContent=g.members.length;
+  document.getElementById('drag-hint').style.display=g.members.length>1?'block':'none';
+  renderMemberList(g);
+  renderActLog(id);
+  renderTable();
+}
+function closeDetail(){
+  activeGroupId=null;
+  document.getElementById('detail-panel').style.display='none';
+  renderTable();
+}
+
+function renderMemberList(g){
+  const list=document.getElementById('member-list');
+  list.innerHTML='';
+  if(!g.members.length){list.innerHTML=`<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">Belum ada member di group ini.</div>`;return;}
+  g.members.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.className='member-row';
+    div.draggable=true;
+    div.dataset.idx=i;
+    div.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify({groupId:g.id,idx:i,username:m.u}));div.style.opacity='.45';});
+    div.addEventListener('dragend',()=>{div.style.opacity='1';});
+    div.addEventListener('dragover',e=>{e.preventDefault();div.style.borderColor='var(--green)';});
+    div.addEventListener('dragleave',()=>{div.style.borderColor='var(--border)';});
+    div.addEventListener('drop',e=>{
+      e.preventDefault();div.style.borderColor='var(--border)';
+      const data=JSON.parse(e.dataTransfer.getData('text/plain'));
+      if(data.groupId===g.id&&data.idx!==i){
+        const arr=g.members;
+        const [moved]=arr.splice(data.idx,1);
+        arr.splice(i,0,moved);
+        renderMemberList(g);
+        document.getElementById('dp-count').textContent=g.members.length;
+        addLog(g.id,'edit',`Urutan member diubah`);
+        renderActLog(g.id);
+      }
+    });
+    const roleCls=m.role==='owner'?'rp-owner':m.role==='admin'?'rp-admin':'rp-member';
+    const roleLabel=m.role==='owner'?'owner':m.role==='admin'?'admin':'member';
+    div.innerHTML=`
+      <span class="drag-handle">&#9776;</span>
+      <div class="m-avatar" style="background:${bgOf(g)};color:${colorOf(g)};">${initials(m.u)}</div>
+      <div style="flex:1;">
+        <div class="m-name">${m.u}</div>
+        <span class="role-pill ${roleCls}">${roleLabel}</span>
+      </div>
+      ${m.role!=='owner'?`<button class="btn btn-red btn-sm" onclick="removeMember(${g.id},'${m.u}')">Remove</button>`:'<span style="font-size:10px;color:var(--text-muted);">—</span>'}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function removeMember(gid,uname){
+  const g=groups.find(x=>x.id===gid);if(!g)return;
+  g.members=g.members.filter(m=>m.u!==uname);
+  renderMemberList(g);
+  document.getElementById('dp-count').textContent=g.members.length;
+  document.getElementById('drag-hint').style.display=g.members.length>1?'block':'none';
+  addLog(gid,'del',`${uname} dihapus dari group`);
+  renderActLog(gid);
+  renderTable();
+  showToast(`${uname} dihapus dari ${g.name}`,'warn');
+}
+
+function showSuggestions(q){
+  const sug=document.getElementById('suggestions');
+  if(!q){sug.classList.remove('vis');return;}
+  const g=groups.find(x=>x.id===activeGroupId);
+  const existing=g?g.members.map(m=>m.u):[];
+  const matches=ALL_USERS.filter(u=>u.includes(q.toLowerCase())&&!existing.includes(u)).slice(0,5);
+  if(!matches.length){sug.classList.remove('vis');return;}
+  sug.innerHTML=matches.map(u=>`<div class="sug-item" onclick="selectSuggestion('${u}')"><div class="m-avatar" style="width:22px;height:22px;font-size:9px;background:rgba(77,163,255,.15);color:var(--blue);">${initials(u)}</div>${u}</div>`).join('');
+  sug.classList.add('vis');
+}
+function selectSuggestion(u){
+  document.getElementById('add-member-inp').value=u;
+  document.getElementById('suggestions').classList.remove('vis');
+}
+function addMemberFromInput(){
+  const u=document.getElementById('add-member-inp').value.trim();
+  if(!u)return;
+  const g=groups.find(x=>x.id===activeGroupId);if(!g)return;
+  if(g.members.find(m=>m.u===u)){showToast(`${u} sudah ada di group ini`,'err');return;}
+  g.members.push({u,role:'member'});
+  document.getElementById('add-member-inp').value='';
+  document.getElementById('suggestions').classList.remove('vis');
+  renderMemberList(g);
+  document.getElementById('dp-count').textContent=g.members.length;
+  document.getElementById('drag-hint').style.display=g.members.length>1?'block':'none';
+  addLog(g.id,'add',`${u} ditambahkan ke group`);
+  renderActLog(g.id);
+  renderTable();
+  showToast(`${u} berhasil ditambahkan ke ${g.name}`,'ok');
+}
+
+function addLog(gid,type,msg){
+  if(!actLogs[gid])actLogs[gid]=[];
+  const now=new Date();
+  const t=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  actLogs[gid].unshift({type,msg,time:`Hari ini ${t}`});
+  if(actLogs[gid].length>5)actLogs[gid].pop();
+}
+function renderActLog(gid){
+  const el=document.getElementById('dp-act-log');
+  const logs=actLogs[gid]||[];
+  if(!logs.length){el.innerHTML=`<div style="font-size:11px;color:var(--text-muted);">Belum ada aktivitas.</div>`;return;}
+  el.innerHTML=logs.map(l=>`
+    <div class="al-row">
+      <div class="al-dot ${l.type==='add'?'al-add':l.type==='del'?'al-del':'al-edit'}"></div>
+      <div><div class="al-msg">${l.msg}</div><div class="al-time">${l.time}</div></div>
+    </div>`).join('');
+}
+
+function openCreateModal(){document.getElementById('create-modal').classList.add('vis');document.getElementById('new-grp-name').value='';document.getElementById('new-grp-desc').value='';document.getElementById('new-grp-gid').value='';document.getElementById('name-err').classList.remove('vis');document.getElementById('new-grp-name').classList.remove('error');}
+function closeCreateModal(){document.getElementById('create-modal').classList.remove('vis');}
+function validateGroupName(){
+  const v=document.getElementById('new-grp-name').value.trim();
+  const exists=groups.find(g=>g.name===v);
+  document.getElementById('name-err').classList.toggle('vis',!!exists);
+  document.getElementById('new-grp-name').classList.toggle('error',!!exists);
+}
+function createGroup(){
+  const name=document.getElementById('new-grp-name').value.trim();
+  const desc=document.getElementById('new-grp-desc').value.trim();
+  const gidVal=document.getElementById('new-grp-gid').value;
+  if(!name){showToast('Nama group wajib diisi','err');return;}
+  if(groups.find(g=>g.name===name)){showToast('Nama group sudah dipakai!','err');return;}
+  const gid=gidVal?parseInt(gidVal):nextGid++;
+  const newG={id:nextId++,name,gid,desc:desc||'Tidak ada deskripsi',members:[],created:'16 Apr 2025',color:nextId%COLORS.length};
+  groups.push(newG);actLogs[newG.id]=[];
+  closeCreateModal();renderTable();
+  showToast(`Group "${name}" berhasil dibuat!`,'ok');
+}
+
+function openDeleteSingle(id){
+  deleteTarget=[id];
+  const g=groups.find(x=>x.id===id);
+  document.getElementById('del-modal-sub').textContent=`Group "${g?g.name:'ini'}" akan dihapus permanen beserta semua konfigurasi.`;
+  document.getElementById('delete-modal').classList.add('vis');
+}
+function openBulkDelete(){
+  if(!selected.size)return;
+  deleteTarget=[...selected];
+  document.getElementById('del-modal-sub').textContent=`${selected.size} group akan dihapus permanen. Aksi ini tidak bisa dibatalkan.`;
+  document.getElementById('delete-modal').classList.add('vis');
+}
+function closeDeleteModal(){document.getElementById('delete-modal').classList.remove('vis');deleteTarget=null;}
+function confirmDelete(){
+  if(!deleteTarget)return;
+  deleteTarget.forEach(id=>{groups=groups.filter(g=>g.id!==id);if(activeGroupId===id)closeDetail();selected.delete(id);});
+  filtered=filtered.filter(g=>!deleteTarget.includes(g.id));
+  closeDeleteModal();renderTable();
+  showToast(`${deleteTarget.length} group berhasil dihapus`,'warn');
+  deleteTarget=null;
+}
+
+function filterGroups(){renderTable();}
+function searchGlobal(v){document.getElementById('grp-search').value=v;filterGroups();}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast toast-'+(type==='ok'?'ok':type==='err'?'err':'warn');
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',2800);
+}
+
+renderTable();
+</script>
 </body>
 </html>
