@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANUX — System Settings</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="asset/logo.png">
+
+<!-- settings CSS moved to style.css -->
+</head>
+<body>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;">Wireframe Settings MANUX — dark dashboard dengan 5 section settings, toggle interaktif, sticky save bar, export/import JSON, dan search settings.</h2>
+
+<div class="shell" style="position:relative;">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-inner">
+        <div class="brand">
+          <div>
+            <img src="../asset/logo.png" height="36" width="36"/>
+          </div>MANUX</div>
+        <div style="font-size:11px;color:var(--text-muted);">Dashboard / <span style="color:var(--text-secondary);">Settings</span></div>
+      </div>
+    </div>
+    <div class="tb-search">
+      <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+      <input placeholder="Cari di semua halaman...">
+    </div>
+    <div class="tb-right">
+      <div class="unsaved-pill" id="unsaved-pill">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11v.5"/></svg>
+        Unsaved changes
+      </div>
+      <div class="icon-btn"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/></svg><div class="ndot"></div></div>
+      <div class="profile-btn">
+        <div class="pa">AD</div>
+        <span class="pname">admin</span>
+        <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      <a href="./MANUX_dashboard.html">Dashboard</a>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+      <a href="user/MANUX_user_management.html">User Management</a>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
+      <a href="grup/MANUX_group_management.html">Group Management</a>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+      <a href="MANUX_permissions.html">Permissions</a>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+      <a href="MANUX_activity_log.html">Activity Log</a>
+      <span class="nav-badge">3</span>
+    </div>
+
+    <div class="nav-label" style="margin-top:8px;">System</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
+      <a href="MANUX_system_settings.html">Settings</a>
+    </div>
+
+    <div style="margin-top:auto;padding:8px 10px;font-size:10px;color:var(--text-muted);line-height:1.6;">MANUX v1.0.0<br>Linux User Mgmt</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="content-inner" id="content-inner">
+
+      <div class="ph">
+        <div class="pt">Settings</div>
+        <div class="bc">Dashboard / <span style="color:var(--text-secondary);">Settings</span></div>
+      </div>
+
+      <!-- SETTINGS SEARCH -->
+      <div class="settings-search">
+        <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+        <input id="settings-search" placeholder="Cari pengaturan... (contoh: password, timeout, permission)" oninput="searchSettings(this.value)">
+        <span id="search-count" style="font-size:10px;color:var(--text-muted);white-space:nowrap;"></span>
+      </div>
+
+      <!-- ADVANCED MODE BAR -->
+      <div class="adv-bar">
+        <div class="adv-label">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:13px;height:13px;"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+          Mode tampilan pengaturan
+        </div>
+        <div class="mode-pills">
+          <button class="mode-pill active" id="pill-basic" onclick="setMode('basic')">Basic</button>
+          <button class="mode-pill" id="pill-advanced" onclick="setMode('advanced')">Advanced</button>
+        </div>
+      </div>
+
+      <!-- SETTINGS GRID -->
+      <div class="settings-grid" id="settings-grid">
+
+        <!-- A: GENERAL -->
+        <div class="settings-card" data-section="general" data-keywords="system name shell timezone language">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(77,163,255,.15);">
+              <svg width="15" height="15" fill="none" stroke="var(--blue)" stroke-width="1.5" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 7h6M5 9.5h4"/></svg>
+            </div>
+            <div><div class="sc-title">General Settings</div><div class="sc-sub">Konfigurasi dasar sistem MANUX</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="field">
+              <div class="fl">System Name <div class="tip-wrap"><div class="tip-icon">?</div><div class="tip">Nama sistem yang tampil di dashboard</div></div></div>
+              <input class="fi" id="sys-name" value="MANUX Production" oninput="markChanged()">
+              <div class="fhelp">Nama ini tampil di topbar dan laporan sistem</div>
+            </div>
+            <div class="field">
+              <div class="fl">Default Shell</div>
+              <select class="fi" onchange="markChanged()">
+                <option value="/bin/bash" selected>/bin/bash</option>
+                <option value="/bin/zsh">/bin/zsh</option>
+                <option value="/bin/sh">/bin/sh</option>
+                <option value="/usr/bin/fish">/usr/bin/fish</option>
+              </select>
+              <div class="fhelp">Shell default untuk user baru yang dibuat</div>
+            </div>
+            <div class="field">
+              <div class="fl">Timezone</div>
+              <select class="fi" onchange="markChanged()">
+                <option>Asia/Jakarta (WIB)</option>
+                <option>Asia/Singapore (SGT)</option>
+                <option>UTC</option>
+                <option>America/New_York (EST)</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="fl">Language</div>
+              <select class="fi" onchange="markChanged()">
+                <option>Bahasa Indonesia</option>
+                <option>English (US)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- B: USER PREFERENCES -->
+        <div class="settings-card" data-section="user" data-keywords="permission home directory folder quota user preferences">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(109,190,69,.15);">
+              <svg width="15" height="15" fill="none" stroke="var(--green)" stroke-width="1.5" viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+            </div>
+            <div><div class="sc-title">User Preferences</div><div class="sc-sub">Default untuk user baru di sistem</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="field">
+              <div class="fl">Default Permission <div class="tip-wrap"><div class="tip-icon">?</div><div class="tip">Nilai chmod default saat user dibuat</div></div></div>
+              <select class="fi" onchange="markChanged()">
+                <option>644 (rw-r--r--)</option>
+                <option selected>755 (rwxr-xr-x)</option>
+                <option>700 (rwx------)</option>
+                <option>600 (rw-------)</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="fl">Home Directory Template</div>
+              <input class="fi" value="/home/{username}" oninput="markChanged()">
+              <div class="fhelp">Gunakan {username} sebagai placeholder</div>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Auto-create user folder</div>
+                <div class="toggle-desc">Otomatis buat /home/{username} saat tambah user</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Enable user quota</div>
+                <div class="toggle-desc">Aktifkan disk quota untuk setiap user</div>
+              </div>
+              <label class="toggle"><input type="checkbox" onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: PERMISSION BEHAVIOR -->
+        <div class="settings-card" data-section="permission" data-keywords="chmod simulation umask permission inheritance unsafe warning">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(201,138,46,.15);">
+              <svg width="15" height="15" fill="none" stroke="var(--orange)" stroke-width="1.5" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+            </div>
+            <div><div class="sc-title">Permission Behavior</div><div class="sc-sub">Konfigurasi chmod & umask sistem</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Enable chmod simulation</div>
+                <div class="toggle-desc">Aktifkan fitur simulasi chmod di Permission Control</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="field">
+              <div class="fl">Default umask <div class="tip-wrap"><div class="tip-icon">?</div><div class="tip">Nilai umask menentukan permission default file baru. Contoh: 022 → permission 755</div></div></div>
+              <input class="fi" id="umask-inp" value="022" maxlength="4" oninput="validateUmask(this);markChanged()">
+              <div class="fhelp">Format octal: 3 digit (000–777)</div>
+              <div class="ferr" id="umask-err">Umask harus berupa angka octal valid (000–777)</div>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Permission inheritance</div>
+                <div class="toggle-desc">File baru mewarisi permission dari parent direktori</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Warning for unsafe permission</div>
+                <div class="toggle-desc">Tampilkan peringatan jika permission terlalu longgar (777)</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- D: NOTIFICATION -->
+        <div class="settings-card" data-section="notification" data-keywords="email notification system alert permission change">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(124,58,237,.15);">
+              <svg width="15" height="15" fill="none" stroke="#a78bfa" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/></svg>
+            </div>
+            <div><div class="sc-title">Notification Settings</div><div class="sc-sub">Atur channel dan trigger notifikasi</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Email notification</div>
+                <div class="toggle-desc">Kirim notifikasi ke email admin</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="field">
+              <div class="fl">Email admin</div>
+              <input class="fi" value="admin@manux.dev" placeholder="admin@example.com" oninput="markChanged()">
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">System alert</div>
+                <div class="toggle-desc">Alert ketika ada error atau anomali sistem</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Permission change alert</div>
+                <div class="toggle-desc">Notifikasi setiap kali permission file diubah</div>
+              </div>
+              <label class="toggle"><input type="checkbox" onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- E: SECURITY -->
+        <div class="settings-card" data-section="security" data-keywords="password session timeout audit log security require">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(224,82,82,.15);">
+              <svg width="15" height="15" fill="none" stroke="var(--red)" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 2L3 4v5c0 3 2.5 5.5 5 6 2.5-.5 5-3 5-6V4L8 2z"/></svg>
+            </div>
+            <div><div class="sc-title">Security Settings</div><div class="sc-sub">Autentikasi, sesi, dan audit</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Require password for changes</div>
+                <div class="toggle-desc">Konfirmasi password sebelum simpan perubahan kritis</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+            <div class="field">
+              <div class="fl">Session timeout (menit) <div class="tip-wrap"><div class="tip-icon">?</div><div class="tip">User otomatis logout setelah idle sekian menit</div></div></div>
+              <input class="fi" id="timeout-inp" value="30" type="number" min="1" max="1440" oninput="validateTimeout(this);markChanged()">
+              <div class="fhelp">Rentang valid: 1–1440 menit (maks 24 jam)</div>
+              <div class="ferr" id="timeout-err">Timeout harus antara 1–1440 menit</div>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-info">
+                <div class="toggle-name">Enable audit log</div>
+                <div class="toggle-desc">Catat semua aksi admin ke dalam log sistem</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked onchange="markChanged()"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- F: EXPORT / IMPORT (BONUS) -->
+        <div class="settings-card" data-section="export" data-keywords="export import json backup reset default">
+          <div class="sc-head">
+            <div class="sc-icon" style="background:rgba(109,190,69,.12);">
+              <svg width="15" height="15" fill="none" stroke="var(--green)" stroke-width="1.5" viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 13h10"/></svg>
+            </div>
+            <div><div class="sc-title">Export / Import Settings</div><div class="sc-sub">Backup dan restore konfigurasi sistem</div></div>
+          </div>
+          <div class="sc-body">
+            <div class="field">
+              <div class="fl">Export konfigurasi</div>
+              <div class="fhelp" style="margin-bottom:8px;">Download semua settings dalam format JSON untuk backup atau migrasi ke server lain</div>
+              <div class="export-zone">
+                <button class="btn btn-blue btn-sm" onclick="doExport()">
+                  <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:12px;height:12px;"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 13h10"/></svg>
+                  Export JSON
+                </button>
+                <button class="btn btn-sm" onclick="doImport()">
+                  <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:12px;height:12px;"><path d="M8 12V4M5 7l3-3 3 3"/><path d="M3 13h10"/></svg>
+                  Import JSON
+                </button>
+              </div>
+            </div>
+            <div style="height:1px;background:var(--border);"></div>
+            <div class="field">
+              <div class="fl" style="color:var(--red);">Reset ke default</div>
+              <div class="fhelp" style="margin-bottom:8px;">Kembalikan semua pengaturan ke nilai bawaan sistem. Aksi ini tidak bisa dibatalkan.</div>
+              <button class="btn btn-red btn-sm" onclick="doReset()">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:12px;height:12px;"><path d="M3 8a5 5 0 1 0 1.5-3.5L2 2"/><path d="M2 2v4h4"/></svg>
+                Reset to Default
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STICKY SAVE BAR -->
+    <div class="save-bar">
+      <div class="save-left" id="save-left">Semua pengaturan tersimpan</div>
+      <div class="save-btns">
+        <button class="btn btn-orange" onclick="revertSettings()">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8a5 5 0 1 0 1.5-3.5L2 2"/><path d="M2 2v4h4"/></svg>
+          Revert
+        </button>
+        <button class="btn btn-green" id="save-btn" onclick="saveSettings()">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8l4 4 6-7"/></svg>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+let hasChanges=false;
+
+function markChanged(){
+  if(!hasChanges){
+    hasChanges=true;
+    document.getElementById('unsaved-pill').classList.add('vis');
+    document.getElementById('save-left').textContent='Ada perubahan yang belum disimpan';
+    document.getElementById('save-left').classList.add('has-changes');
+    document.getElementById('save-btn').style.boxShadow='0 0 0 2px rgba(109,190,69,.3)';
+  }
+}
+
+function saveSettings(){
+  const umaskEl=document.getElementById('umask-inp');
+  const timeoutEl=document.getElementById('timeout-inp');
+  if(umaskEl.classList.contains('invalid')||timeoutEl.classList.contains('invalid')){
+    showToast('Perbaiki field yang error sebelum menyimpan','err');return;
+  }
+  hasChanges=false;
+  document.getElementById('unsaved-pill').classList.remove('vis');
+  document.getElementById('save-left').textContent='Semua pengaturan tersimpan';
+  document.getElementById('save-left').classList.remove('has-changes');
+  document.getElementById('save-btn').style.boxShadow='none';
+  showToast('Settings saved successfully!','ok');
+}
+
+function revertSettings(){
+  hasChanges=false;
+  document.getElementById('unsaved-pill').classList.remove('vis');
+  document.getElementById('save-left').textContent='Semua pengaturan tersimpan';
+  document.getElementById('save-left').classList.remove('has-changes');
+  document.getElementById('save-btn').style.boxShadow='none';
+  document.getElementById('sys-name').value='MANUX Production';
+  document.getElementById('umask-inp').value='022';
+  document.getElementById('timeout-inp').value='30';
+  clearErr('umask-inp','umask-err');
+  clearErr('timeout-inp','timeout-err');
+  showToast('Pengaturan dikembalikan ke kondisi sebelumnya','warn');
+}
+
+function validateUmask(el){
+  const v=el.value.trim();
+  const valid=/^[0-7]{3,4}$/.test(v);
+  el.classList.toggle('invalid',!valid&&v!=='');
+  document.getElementById('umask-err').classList.toggle('vis',!valid&&v!=='');
+}
+
+function validateTimeout(el){
+  const v=parseInt(el.value);
+  const valid=!isNaN(v)&&v>=1&&v<=1440;
+  el.classList.toggle('invalid',!valid&&el.value!=='');
+  document.getElementById('timeout-err').classList.toggle('vis',!valid&&el.value!=='');
+}
+
+function clearErr(inputId,errId){
+  document.getElementById(inputId).classList.remove('invalid');
+  document.getElementById(errId).classList.remove('vis');
+}
+
+function setMode(mode){
+  document.getElementById('pill-basic').classList.toggle('active',mode==='basic');
+  document.getElementById('pill-advanced').classList.toggle('active',mode==='advanced');
+  document.querySelectorAll('.settings-card.hidden-adv').forEach(c=>c.style.display='');
+  if(mode==='basic'){
+    document.querySelectorAll('.settings-card[data-section="export"]').forEach(c=>c.style.display='none');
+  } else {
+    document.querySelectorAll('.settings-card[data-section="export"]').forEach(c=>c.style.display='');
+  }
+}
+
+function searchSettings(q){
+  const cards=document.querySelectorAll('.settings-card');
+  let visible=0;
+  const lq=q.toLowerCase().trim();
+  cards.forEach(c=>{
+    const kw=(c.dataset.keywords||'')+(c.querySelector('.sc-title')?.textContent||'')+(c.querySelector('.sc-sub')?.textContent||'');
+    const match=!lq||kw.toLowerCase().includes(lq);
+    c.style.display=match?'':'none';
+    if(match)visible++;
+  });
+  const cnt=document.getElementById('search-count');
+  cnt.textContent=lq?`${visible} section ditemukan`:'';
+}
+
+function doExport(){
+  const config={systemName:document.getElementById('sys-name').value,umask:document.getElementById('umask-inp').value,sessionTimeout:document.getElementById('timeout-inp').value,exportedAt:new Date().toISOString()};
+  showToast('Config berhasil di-export sebagai manux-settings.json','ok');
+  console.log('MANUX Export:',JSON.stringify(config,null,2));
+}
+function doImport(){showToast('Fitur import: pilih file JSON dari perangkat (simulasi wireframe)','warn');}
+function doReset(){
+  showToast('Semua settings dikembalikan ke default sistem','warn');
+  revertSettings();
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast toast-'+(type==='ok'?'ok':type==='err'?'err':'warn')+' vis';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('vis'),3200);
+}
+
+setMode('basic');
+</script>
+</body>
+</html>
