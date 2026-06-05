@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* =========================
   Settings page specific styles
   (moved from MANUX_system_settings.html <style> block)
@@ -133,6 +134,8 @@ html, body { height:100%; }
 .toast-err{background:rgba(224,82,82,.14);color:var(--red);border-color:rgba(224,82,82,.35);} 
 .toast-warn{background:rgba(201,138,46,.14);color:var(--orange);border-color:rgba(201,138,46,.35);} 
 
+=======
+>>>>>>> main
 /* ================= RESET ================= */
 *{box-sizing:border-box;margin:0;padding:0;}
 
@@ -141,35 +144,6 @@ body{
   background:var(--bg-main);
   color:var(--text-primary);
 }
-
-/* ===== Compatibility mappings for MANUX_system_settings.html ===== */
-:root{
-  --bg-base: var(--bg-main);
-  --bg-surface: var(--bg-card);
-  --bg-card: var(--bg-card);
-  --bg-hover: var(--bg-soft);
-  --color-accent: var(--blue);
-  --color-accent-dim: rgba(77,163,255,0.06);
-  --color-green: var(--green);
-  --color-amber: var(--amber);
-  --color-red: var(--red);
-  --color-border: var(--border);
-  --color-border-tertiary: rgba(255,255,255,0.02);
-  --text-primary: var(--text-primary);
-  --text-secondary: var(--text-secondary);
-  --text-muted: var(--text-muted);
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --radius: 8px;
-  --topbar-h: 48px;
-  --sidebar-w: 200px;
-}
-
-.brand-inner{display:flex;align-items:center;gap:14px}
-.hidden{display:none}
-.pw-wrap{position:relative}
-#btn-show-pw{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:2px;display:flex;align-items:center}
-
 
 /* ================= ROOT ================= */
 :root{
