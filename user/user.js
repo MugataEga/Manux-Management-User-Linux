@@ -274,3 +274,5 @@ function confirmDelete() {
 /* ================= INIT ================= */
 renderTable();
 validateForm();
+
+// ========== Testing Code ==============

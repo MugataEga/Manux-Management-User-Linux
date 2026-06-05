@@ -45,8 +45,8 @@
 
                 <!-- PROFILE -->
                 <div class="profile">
-                <div class="pa">AD</div>
-                <span class="pname">admin</span>
+                <div class="pa"></div>
+                <span class="pname"></span>
                 <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
                     <path d="M4 6l4 4 4-4"/>
                 </svg>
@@ -99,10 +99,10 @@
                     </div>
                 </div>
             <div class="stat-grid">
-                <div class="stat-card"><div class="stat-label">Total user</div><div class="stat-val" id="st-total">8</div><div class="stat-sub">terdaftar di sistem</div></div>
-                <div class="stat-card"><div class="stat-label">Online</div><div class="stat-val" style="color:#27500A;" id="st-online">3</div><div class="stat-sub">sesi aktif</div></div>
-                <div class="stat-card"><div class="stat-label">Admin / root</div><div class="stat-val" id="st-admin">2</div><div class="stat-sub">hak akses penuh</div></div>
-                <div class="stat-card"><div class="stat-label">Baru (7 hari)</div><div class="stat-val" id="st-new">2</div><div class="stat-sub">user terbaru</div></div>
+                <div class="stat-card"><div class="stat-label">Total user</div><div class="stat-val" id="st-total"></div><div class="stat-sub">terdaftar di sistem</div></div>
+                <div class="stat-card"><div class="stat-label">Online</div><div class="stat-val" style="color:#27500A;" id="st-online"></div><div class="stat-sub">sesi aktif</div></div>
+                <div class="stat-card"><div class="stat-label">Admin / root</div><div class="stat-val" id="st-admin"></div><div class="stat-sub">hak akses penuh</div></div>
+                <div class="stat-card"><div class="stat-label">Baru (7 hari)</div><div class="stat-val" id="st-new"></div><div class="stat-sub">user terbaru</div></div>
             </div>
         <div class="stat-card" style="margin-top:16px;">
             <div class="search-bar">
@@ -223,5 +223,72 @@
         </div>
     </div>
 <script src="user.js"></script>
+<script>
+        async function muatProfileUser() {
+            console.log("Fungsi muatProfileUser() mulai berjalan...");
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/get-stats', {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+                console.log("Data dari FastAPI diterima:", data);
+
+                if (response.ok) {
+                    const username = data.self.trim();
+                    
+                    // Ganti teks nama admin di topbar
+                    const pnameElement = document.querySelector('.profile .pname');
+                    if (pnameElement) {
+                        pnameElement.innerText = username;
+                    }
+
+                    // Ganti inisial avatar "AD" di topbar
+                    const paElement = document.querySelector('.profile .pa');
+                    if (paElement && username.length >= 2) {
+                        paElement.innerText = username.substring(0, 2).toUpperCase();
+                    }
+                } else {
+                    console.error("FastAPI mengembalikan error:", data.detail);
+                }
+            } catch (error) {
+                console.error("Gagal konek ke FastAPI. Apakah python app.py sudah dijalankan?", error);
+            }
+        }
+
+        async function muatStatistikDashboard() {
+            console.log("Fungsi muatStatistikDashboard() mulai berjalan...");
+            try {
+                // GET method murni, tanpa headers dan tanpa body
+                const response = await fetch('http://127.0.0.1:5000/get-stats', {
+                    method: 'GET'
+                });
+                
+                const data = await response.json();
+                console.log("Data statistik dari FastAPI:", data);
+
+                if (response.ok) {
+                    if (document.getElementById('st-total'))  document.getElementById('st-total').innerText = data.total_user;
+                    if (document.getElementById('st-online')) document.getElementById('st-online').innerText = data.online;
+                    if (document.getElementById('st-admin'))  document.getElementById('st-admin').innerText = data.admin;
+                    if (document.getElementById('st-new'))    document.getElementById('st-new').innerText = data.new_user;
+                    console.log("Statistik dashboard berhasil diperbarui!");
+                } else {
+                    console.error("FastAPI Stats Error:", data.detail);
+                }
+            } catch (error) {
+                console.error("Gagal konek ke FastAPI untuk statistik:", error);
+            }
+        }
+
+    
+
+        // Jalankan otomatis saat struktur dokumen siap
+        document.addEventListener('DOMContentLoaded', () => {
+            muatProfileUser();
+            muatStatistikDashboard();
+        });
+    </script>
 </body>
 </html>

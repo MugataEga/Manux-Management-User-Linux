@@ -10,6 +10,7 @@
 --radius:14px;--tr:.18s;
 }
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-main);color:var(--text-primary);} 
+html, body { height:100%; }
 .shell{display:grid;grid-template-columns:210px 1fr;grid-template-rows:50px 1fr;height:800px;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);} 
 
 /* TOPBAR */
@@ -108,7 +109,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-main);co
 .toggle input:checked:hover+.slider{border-color:var(--green);} 
 
 /* STICKY SAVE BAR */
-.save-bar{position:absolute;bottom:0;left:210px;right:0;background:var(--bg-card);border-top:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:20;} 
+.save-bar{position:fixed;bottom:0;left:210px;right:0;background:var(--bg-card);border-top:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:20;} 
 .save-left{font-size:11px;color:var(--text-muted);} 
 .save-left.has-changes{color:var(--orange);} 
 .save-btns{display:flex;gap:8px;} 
@@ -263,7 +264,7 @@ body{
   display:grid;
   grid-template-columns:210px 1fr;
   grid-template-rows:50px 1fr;
-  min-height:780px;
+  min-height:100vh;
   background:var(--bg-main);
   border-radius:var(--radius);
   overflow:hidden;
@@ -1339,7 +1340,7 @@ select,input[type=date]{font-size:15px;padding:5px 8px;border:0.5px solid var(--
 --radius:14px;
 }
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-main);color:var(--text-primary);}
-.shell{display:grid;grid-template-columns:210px 1fr;grid-template-rows:50px 1fr;min-height:780px;background:var(--bg-main);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+.shell{display:grid;grid-template-columns:210px 1fr;grid-template-rows:50px 1fr;height:800px;background:var(--bg-main);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
 .topbar{grid-column:1/-1;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px;}
 .brand{font-size:14px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;letter-spacing:.02em;}
 .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
