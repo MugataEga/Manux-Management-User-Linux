@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import subprocess
+import re
 
 app = FastAPI()
 
@@ -13,28 +14,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Struktur data input jika kamu masih butuh endpoint POST /run-command secara dinamis
-class CommandRequest(BaseModel):
-    command: str
-
-@app.post("/run-command")
-async def run_command(request: CommandRequest):
-    perintah_pilihan = request.command
-    allowed_commands = {
-    }
-    
-    if perintah_pilihan not in allowed_commands:
-        raise HTTPException(status_code=400, detail="Perintah tidak diizinkan atau tidak ditemukan.")
-    
-    try:
-        result = subprocess.run(allowed_commands[perintah_pilihan], capture_output=True, text=True, shell=True)
-        return {
-            "status": "success",
-            "output": result.stdout if result.returncode == 0 else result.stderr
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+#buat bikin new user dari form data
+class UserForm(BaseModel):
+    username: str
+    fullname: str
+    email: str
+    role: str
+    group: str
+    password: str
 
 @app.get("/get-stats")
 async def get_stats():
@@ -82,6 +69,136 @@ async def get_stats():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Backend Error: {str(e)}")
+
+# Variabel session tiruan (pastikan login sudah mengisi ini, atau isi manual dulu buat tes)
+SESSION_SUDO_PASSWORD = "harrypcm18" 
+
+# 2. Daftarkan Endpoint POST Baru yang ditembak oleh JS Form
+@app.post("/add-user-complete")
+async def add_user_complete(form_data: UserForm):
+    global SESSION_SUDO_PASSWORD
+    if not SESSION_SUDO_PASSWORD:
+        raise HTTPException(status_code=401, detail="Sesi admin habis, silakan login kembali.")
+
+    uname = form_data.username
+    passwd = form_data.password
+    gname = form_data.group
+
+    try:
+        # Jalankan pembuatan user Linux secara berurutan
+        # Perintah A: Buat user murni + set grup utama sesuai input
+        cmd_create = f"wsl sudo -S useradd -m -g {gname} {uname}"
+        res1 = subprocess.run(cmd_create, shell=True, capture_output=True, text=True, input=f"{SESSION_SUDO_PASSWORD}\n")
+        if res1.returncode != 0:
+            # Jika user sudah ada atau grup tidak terdaftar di Linux, return error agar ketahuan
+            return {"status": "failed", "error": res1.stderr.strip()}
+
+        # Perintah B: Set Password secara otomatis lewat chpasswd pipe
+        cmd_pass = f"echo '{uname}:{passwd}' | wsl sudo -S chpasswd"
+        subprocess.run(cmd_pass, shell=True, capture_output=True, text=True, input=f"{SESSION_SUDO_PASSWORD}\n")
+
+        # Respons sukses kembali ke Frontend
+        return {
+            "status": "success", 
+            "message": f"User {uname} berhasil dibuat pada grup {gname}!"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal eksekusi WSL: {str(e)}")
+    
+@app.get("/get-users")
+async def get_users():
+    try:
+        # 1. Ambil user reguler (UID >= 1000) beserta kolom teks gecos/fullname
+        cmd_users = """wsl awk -F: '$3 >= 1000 && $3 != 65534 {print $1":"$5}' /etc/passwd"""
+        res_users = subprocess.run(cmd_users, shell=True, capture_output=True, text=True)
+        if res_users.returncode != 0:
+            return {"status": "failed", "error": res_users.stderr.strip()}
+
+        raw_users = res_users.stdout.strip().split("\n")
+        
+        # 2. Ambil siapa saja user yang saat ini sedang aktif (online)
+        cmd_online = """wsl users"""
+        res_online = subprocess.run(cmd_online, shell=True, capture_output=True, text=True)
+        online_users = res_online.stdout.strip().split()
+
+        # 3. Ambil daftar grup dari /etc/group untuk memetakan kepemilikan grup
+        cmd_groups = """wsl cat /etc/group"""
+        res_groups = subprocess.run(cmd_groups, shell=True, capture_output=True, text=True)
+        raw_groups = res_groups.stdout.strip().split("\n")
+
+        user_list = []
+        
+        for line in raw_users:
+            if not line: continue
+            username, fullname_raw = line.split(":", 1)
+            # Membersihkan koma bawaan dari field gecos Linux
+            fullname = fullname_raw.split(",")[0] if fullname_raw else username
+            
+            # Cari tahu user ini masuk ke grup mana saja
+            user_groups = []
+            for g_line in raw_groups:
+                if not g_line: continue
+                g_parts = g_line.split(":")
+                if len(g_parts) == 4 and username in g_parts[3].split(","):
+                    user_groups.append(g_parts[0])
+            
+            # Tentukan status online/offline
+            status = "online" if username in online_users else "offline"
+            
+            # Logika pencocokan Role kosmetik berdasarkan grup
+            if "sudo" in user_groups or username == "admin":
+                role = "admin"
+                group_display = "admin"
+            elif "dev" in user_groups:
+                role = "dev"
+                group_display = "dev"
+            elif "ops" in user_groups:
+                role = "ops"
+                group_display = "ops"
+            else:
+                role = "viewer"
+                group_display = user_groups[0] if user_groups else "viewer"
+
+            user_list.append({
+                "username": username,
+                "fullname": fullname,
+                "role": role,
+                "group": group_display,
+                "status": status
+            })
+
+        return {"status": "success", "users": user_list}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal mengambil user Linux: {str(e)}")
+
+
+# =====================================================================
+# ENDPOINT BARU 2: HAPUS USER DARI WSL BERDASARKAN TOMBOL MODAL DI WEB
+# =====================================================================
+@app.delete("/delete-user/{username}")
+async def delete_user(username: str):
+    global SESSION_SUDO_PASSWORD
+    if not SESSION_SUDO_PASSWORD:
+        raise HTTPException(status_code=401, detail="Sesi admin habis, silakan login kembali.")
+
+    # Proteksi darurat: Jangan biarkan user admin utama kamu terhapus secara tidak sengaja via web!
+    if username in ["root", "admin"]:
+        raise HTTPException(status_code=400, detail="User sistem utama / root tidak boleh dihapus!")
+
+    try:
+        # Perintah userdel -r akan menghapus user sekaligus membuang folder /home-nya secara bersih
+        cmd_delete = f"wsl sudo -S userdel -r {username}"
+        res = subprocess.run(cmd_delete, shell=True, capture_output=True, text=True, input=f"{SESSION_SUDO_PASSWORD}\n")
+        
+        if res.returncode == 0:
+            return {"status": "success", "message": f"User {username} berhasil dimusnahkan dari sistem."}
+        else:
+            return {"status": "failed", "error": res.stderr.strip()}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal eksekusi perintah hapus di WSL: {str(e)}")
 
 if __name__ == '__main__':
     import uvicorn
