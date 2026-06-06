@@ -45,8 +45,8 @@
 
                 <!-- PROFILE -->
                 <div class="profile">
-                <div class="pa">AD</div>
-                <span class="pname">admin</span>
+                <div class="pa"></div>
+                <span class="pname"></span>
                 <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
                     <path d="M4 6l4 4 4-4"/>
                 </svg>
@@ -99,10 +99,10 @@
                     </div>
                 </div>
             <div class="stat-grid">
-                <div class="stat-card"><div class="stat-label">Total user</div><div class="stat-val" id="st-total">8</div><div class="stat-sub">terdaftar di sistem</div></div>
-                <div class="stat-card"><div class="stat-label">Online</div><div class="stat-val" style="color:#27500A;" id="st-online">3</div><div class="stat-sub">sesi aktif</div></div>
-                <div class="stat-card"><div class="stat-label">Admin / root</div><div class="stat-val" id="st-admin">2</div><div class="stat-sub">hak akses penuh</div></div>
-                <div class="stat-card"><div class="stat-label">Baru (7 hari)</div><div class="stat-val" id="st-new">2</div><div class="stat-sub">user terbaru</div></div>
+                <div class="stat-card"><div class="stat-label">Total user</div><div class="stat-val" id="st-total"></div><div class="stat-sub">terdaftar di sistem</div></div>
+                <div class="stat-card"><div class="stat-label">Online</div><div class="stat-val" style="color:#27500A;" id="st-online"></div><div class="stat-sub">sesi aktif</div></div>
+                <div class="stat-card"><div class="stat-label">Admin / root</div><div class="stat-val" id="st-admin"></div><div class="stat-sub">hak akses penuh</div></div>
+                <div class="stat-card"><div class="stat-label">Baru (7 hari)</div><div class="stat-val" id="st-new"></div><div class="stat-sub">user terbaru</div></div>
             </div>
         <div class="stat-card" style="margin-top:16px;">
             <div class="search-bar">
@@ -223,5 +223,248 @@
         </div>
     </div>
 <script src="user.js"></script>
+<script>
+     // 1. FUNGSI LOAD PROFILE (TOPBAR)
+    async function muatProfileUser() {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/get-stats', { method: 'GET' });
+            const data = await response.json();
+            if (response.ok) {
+                const username = data.self.trim();
+                const pnameElement = document.querySelector('.profile .pname');
+                if (pnameElement) pnameElement.innerText = username;
+
+                const paElement = document.querySelector('.profile .pa');
+                if (paElement && username.length >= 2) {
+                    paElement.innerText = username.substring(0, 2).toUpperCase();
+                }
+            }
+        } catch (error) {
+            console.error("Gagal konek ke FastAPI untuk profile:", error);
+        }
+    }
+
+    // 2. FUNGSI LOAD STATISTIK (CARD ATAS)
+    async function muatStatistikDashboard() {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/get-stats', { method: 'GET' });
+            const data = await response.json();
+            if (response.ok) {
+                if (document.getElementById('st-total'))  document.getElementById('st-total').innerText = data.total_user;
+                if (document.getElementById('st-online')) document.getElementById('st-online').innerText = data.online;
+                if (document.getElementById('st-admin'))  document.getElementById('st-admin').innerText = data.admin;
+                if (document.getElementById('st-new'))    document.getElementById('st-new').innerText = data.new_user;
+            }
+        } catch (error) {
+            console.error("Gagal konek ke FastAPI untuk statistik:", error);
+        }
+    }
+
+    // 3. FUNGSI INTI LOAD DAFTAR USER (SUNTIK KE TABEL) -> KOREKSI: Tadi bagian ini hilang!
+    async function muatDaftarUser() {
+        const tbody = document.getElementById('user-tbody');
+        if (!tbody) return;
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/get-users', { method: 'GET' });
+            const data = await response.json();
+
+            if (response.ok && data.status === "success") {
+                tbody.innerHTML = ""; // Bersihkan tabel lama
+                
+                if (document.getElementById('tbl-count')) {
+                    document.getElementById('tbl-count').innerText = `Menampilkan ${data.users.length} user`;
+                }
+
+                data.users.forEach(user => {
+                    const inisial = user.username.substring(0, 2).toUpperCase();
+                    
+                    // Tentukan warna teks status sesuai kondisi Linux
+                    let statusColor = '#8c8c8c'; // default offline (abu-abu)
+                    if (user.status === 'online') statusColor = '#52c41a'; // hijau
+                    if (user.status === 'idle') statusColor = '#faad14'; // kuning/oranye
+
+                    const row = `
+                        <tr>
+                            <td style="width:38px;">
+                                <div class="avatar-circle">${inisial}</div>
+                            </td>
+                            <td class="td-user">
+                                <strong class="uname-text">${user.username}</strong>
+                                <span class="fname-sub">${user.fullname}</span>
+                            </td>
+                            <td><span class="badge-role">${user.role}</span></td>
+                            <td><span class="text-muted">${user.group}</span></td>
+                            <td>
+                                <span style="color: ${statusColor}; font-weight: 600; font-size: 12px;">
+                                    ${user.status}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action" onclick="editUser('${user.username}')">Edit</button>
+                                    <button class="btn-action btn-del" onclick="bukaModalHapus('${user.username}')">Del</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            }
+        } catch (error) {
+            console.error("Gagal memuat daftar user ke tabel:", error);
+        }
+    }
+
+    // TRIGGER OTOMATIS SAAT HALAMAN DIBUKA
+    document.addEventListener('DOMContentLoaded', () => {
+        muatProfileUser();
+        muatStatistikDashboard();
+        muatDaftarUser(); // KOREKSI: Jalankan fungsi tabel saat startup
+    });
+
+    // 4. VALIDASI FORM INPUT
+    function validateForm() {
+        const username = document.getElementById('f-username').value.trim();
+        const fullname = document.getElementById('f-fullname').value.trim();
+        const role = document.getElementById('f-role').value;
+        const password = document.getElementById('f-pass').value;
+        const btnSubmit = document.getElementById('btn-submit');
+
+        if (username !== "" && fullname !== "" && role !== "" && password.length >= 8) {
+            btnSubmit.disabled = false;
+        } else {
+            btnSubmit.disabled = true;
+        }
+    }
+
+    // 5. TOAST NOTIFIKASI FORM
+    function showFormToast(message, isSuccess = false) {
+        const toast = document.getElementById('form-toast');
+        toast.innerText = message;
+        toast.style.display = 'block';
+        toast.style.color = isSuccess ? '#52c41a' : '#ff4d4f';
+
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    // 6. FUNGSI SUBMIT FORM (TAMBAH USER)
+    async function submitForm() {
+        const username = document.getElementById('f-username').value.trim();
+        const fullname = document.getElementById('f-fullname').value.trim();
+        const email = document.getElementById('f-email').value.trim();
+        const role = document.getElementById('f-role').value;
+        const group = document.getElementById('f-group').value;
+        const password = document.getElementById('f-pass').value;
+
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnLabel = document.getElementById('btn-submit-label');
+
+        btnSubmit.disabled = true;
+        btnLabel.innerText = "Memproses...";
+
+        const payload = {
+            username: username,
+            fullname: fullname,
+            email: email,
+            role: role,
+            group: group ? group : role,
+            password: password
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/add-user-complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status === "success") {
+                showFormToast("User berhasil ditambahkan ke WSL!", true);
+                resetForm();
+                
+                // KOREKSI: Panggil nama fungsi refresh yang benar
+                muatStatistikDashboard();
+                muatDaftarUser();
+            } else {
+                showFormToast("Gagal: " + (data.detail || data.error || "Terjadi kesalahan sistem."));
+                btnSubmit.disabled = false;
+            }
+        } catch (error) {
+            console.error("Error saat submit form:", error);
+            showFormToast("Gagal terhubung ke server FastAPI.");
+            btnSubmit.disabled = false;
+        } finally {
+            btnLabel.innerText = "Tambah user";
+        }
+    }
+
+    // 7. RESET FORM (BATAL)
+    function resetForm() {
+        document.getElementById('f-username').value = "";
+        document.getElementById('f-fullname').value = "";
+        document.getElementById('f-email').value = "";
+        document.getElementById('f-role').value = "";
+        document.getElementById('f-group').value = "";
+        document.getElementById('f-pass').value = "";
+        document.getElementById('btn-submit').disabled = true;
+        document.getElementById('form-toast').style.display = 'none';
+    }
+
+    // EVENT LISTENER DROPDOWN ROLE
+    document.addEventListener('DOMContentLoaded', () => {
+        const roleSelect = document.getElementById('f-role');
+        if (roleSelect) roleSelect.addEventListener('change', validateForm);
+        
+        const btnSubmit = document.getElementById('btn-submit');
+        if (btnSubmit) btnSubmit.disabled = true;
+    });
+
+    // 8. FUNGSI MODAL POPUP HAPUS
+    let userYangAkanDihapus = "";
+
+    function bukaModalHapus(username) {
+        userYangAkanDihapus = username;
+        document.getElementById('del-uname').innerText = username;
+        document.getElementById('delete-modal').style.display = 'block';
+    }
+
+    function closeDelete() {
+        document.getElementById('delete-modal').style.display = 'none';
+        userYangAkanDihapus = "";
+    }
+
+    async function confirmDelete() {
+        if (!userYangAkanDihapus) return;
+
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/delete-user/${userYangAkanDihapus}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === "success") {
+                alert(data.message);
+                closeDelete();
+                
+                // KOREKSI: Panggil nama fungsi refresh yang benar
+                muatStatistikDashboard();
+                muatDaftarUser();
+            } else {
+                alert("Gagal menghapus user: " + (data.error || data.detail));
+            }
+        } catch (error) {
+            console.error("Error saat menghapus user:", error);
+            alert("Gagal terhubung ke FastAPI.");
+        }
+    }
+
+    // Stub placeholder biar tidak error saat diclik desainer
+    function editUser(username) {
+        alert("Fitur edit untuk " + username + " sedang dikembangkan!");
+    }
+    </script>
 </body>
 </html>
