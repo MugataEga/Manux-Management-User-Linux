@@ -4,227 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MANUX - User Management</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="user.css">
-    <link rel="icon" href="../asset/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/user/user.css">
+    <link rel="icon" href="/static/asset/logo.png">
 </head>
 <body>
     <div class="shell">
         <div class="topbar">
-            <!-- LEFT -->
             <div class="topbar-brand">
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div >
-                    <img src="../asset/logo.png" height="36" width="36"/>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div>
+                        <img src="/static/asset/logo.png" height="36" width="36"/>
+                    </div>
+                    MANUX
+                    <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">User Management</span>
                 </div>
-                MANUX
-                <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">User Management</span>
-            </div>
             </div>
 
-            <!-- SEARCH -->
             <div class="tb-search">
                 <svg width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
-                <circle cx="7" cy="7" r="4"/>
-                <path d="M10.5 10.5L13 13"/>
+                    <circle cx="7" cy="7" r="4"/>
+                    <path d="M10.5 10.5L13 13"/>
                 </svg>
                 <input placeholder="Cari resource, user, group..." oninput="searchGlobal(this.value)">
             </div>
 
-            <!-- RIGHT -->
             <div class="tb-right">
-
-                <!-- NOTIF -->
                 <div class="icon-btn">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16">
-                    <path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/>
-                    <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
-                </svg>
-                <div class="notif-dot"></div>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16">
+                        <path d="M8 2a5 5 0 0 1 5 5v2l1 2H2l1-2V7a5 5 0 0 1 5-5z"/>
+                        <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                    </svg>
+                    <div class="notif-dot"></div>
                 </div>
 
-                <!-- PROFILE -->
                 <div class="profile">
-                <div class="pa"></div>
-                <span class="pname"></span>
-                <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
-                    <path d="M4 6l4 4 4-4"/>
-                </svg>
+                    <div class="pa"></div>
+                    <span class="pname"></span>
+                    <svg width="10" height="10" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 16 16">
+                        <path d="M4 6l4 4 4-4"/>
+                    </svg>
                 </div>
             </div>
         </div>
+
         <div class="sidebar">
             <div class="nav-label">Menu</div>
             <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-            <a href="../MANUX_dashboard.html" >Dashboard</a>
-            </div>
-            <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
-            <a href="../user/MANUX_user_management.html" >User Management</a>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+                <a href="/static/MANUX_dashboard.html">Dashboard</a>
             </div>
             <div class="nav-item active">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-            <a href="../grup/MANUX_group_management.html" >Group Management</a>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+                <a href="/static/user/MANUX_user_management.html">User Management</a>
             </div>
             <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <a href="../MANUX_permissions.html" >Permissions</a>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
+                <a href="/static/grup/MANUX_group_management.html">Group Management</a>
             </div>
             <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-            <a href="../MANUX_activity_log.html" >Activity Log</a>
-            <span class="nav-badge">3</span>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+                <a href="/static/MANUX_permissions.html">Permissions</a>
             </div>
-            <div class="nav-label" style="margin-top:8px;">System</div>
             <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-            <a href="../MANUX_system_settings.html" >Settings</a>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+                <a href="/static/MANUX_activity_log.html">Activity Log</a>
             </div>
         </div>
+
         <div class="content">
-                <div class="stat">
-                    <div class="ph">
+            <div class="stat">
+                <div class="ph">
                     <div>
-                    <div class="pt" >User Management</div>
-                    <div class="ps">Kelola user, role, group, dan status akun dalam sistem</div>
+                        <div class="pt">User Management</div>
+                        <div class="ps">Kelola user, role, group, dan status akun dalam sistem</div>
                     </div>
                     <div class="hbts">
-                    <button class="btn" onclick="window.location.href='../MANUX_permissions.html'">Permission Control ↗</button>
-                    <button class="btn btn-blue" onclick="openAddForm()">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
-                        Tambah user
-                    </button>
-                    </div>
+                        <button class="btn" onclick="window.location.href='/static/MANUX_permissions.html'">Permission Control ↗</button>
+                        <button class="btn btn-blue" onclick="openAddForm()">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
+                            Tambah user
+                        </button>
                     </div>
                 </div>
+            </div>
+
             <div class="stat-grid">
                 <div class="stat-card"><div class="stat-label">Total user</div><div class="stat-val" id="st-total"></div><div class="stat-sub">terdaftar di sistem</div></div>
                 <div class="stat-card"><div class="stat-label">Online</div><div class="stat-val" style="color:#27500A;" id="st-online"></div><div class="stat-sub">sesi aktif</div></div>
                 <div class="stat-card"><div class="stat-label">Admin / root</div><div class="stat-val" id="st-admin"></div><div class="stat-sub">hak akses penuh</div></div>
                 <div class="stat-card"><div class="stat-label">Baru (7 hari)</div><div class="stat-val" id="st-new"></div><div class="stat-sub">user terbaru</div></div>
             </div>
-        <div class="stat-card" style="margin-top:16px;">
-            <div class="search-bar">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--text-secondary);flex-shrink:0;"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
+
+            <div class="stat-card" style="margin-top:16px;">
+                <div class="search-bar">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--text-secondary);flex-shrink:0;"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5L13 13"/></svg>
                     <input class="tb-search" style="color: var(--text-secondary);" id="search-inp" placeholder="Cari username, nama, atau email..." oninput="filterTable()" style="flex:1;">
-                    <select class="fi-sel" id="filter-role" onchange="filterTable()">
-                    <option value="all">Semua role</option>
-                    <option value="admin">Admin</option>
-                    <option value="dev">Dev</option>
-                    <option value="ops">Ops</option>
-                    <option value="viewer">Viewer</option>
-                    </select>
                     <select class="fi-sel" id="filter-status" onchange="filterTable()">
-                    <option value="all">Semua status</option>
-                    <option value="online">Online</option>
-                    <option value="idle">Idle</option>
-                    <option value="offline">Offline</option>
+                        <option value="all">Semua status</option>
+                        <option value="online">Online</option>
+                        <option value="idle">Idle</option>
+                        <option value="offline">Offline</option>
                     </select>
+                </div>
             </div>
-        </div>
+
             <div id="main-area">
                 <div class="two-col">
-                <div class="card">
-                    <div class="card-head">
-                    <div>
-                        <div class="ph">Daftar user</div>
-                        <div class="ps" id="tbl-count">Menampilkan 8 user</div></div>
-                    </div>
-                    <table class="tbl">
-                    <thead>
-                        <tr>
-                        <th style="width:38px;"></th>
-                        <th class="ps" style="width:110px;">Username</th>
-                        <th class="ps" style="width:70px;">Role</th>
-                        <th class="ps" style="width:70px;">Group</th>
-                        <th class="ps" style="width:65px;">Status</th>
-                        <th class="ps" style="width:80px;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-tbody"></tbody>
-                    </table>
-                </div>
-                <div class="stat-card" id="form-panel">
-                    <div class="form-head" id="form-head-title">
-                        <div class="ph" id="form-title">Tambah user baru</div>
-                        <div class="ps">Isi data user yang akan ditambahkan ke sistem</div>
-                    </div>
-                    <div class="form-body">
-                        <div>
-                            <div class="ps">Username *</div>
-                            <input class="fi" id="f-username" placeholder="contoh: zaky_dev" oninput="validateForm()">
-                        </div>
-                        <div>
-                            <div class="ps">Nama lengkap *</div>
-                            <input class="fi" id="f-fullname" placeholder="contoh: Zaky Aditya Susanto" oninput="validateForm()">
-                        </div>
-                        <div>
-                            <div class="ps">Email</div>
-                            <input class="fi" id="f-email" placeholder="contoh: zaky@manux.dev" type="email">
-                        </div>
-                        <div class="form-row">
+                    <div class="card">
+                        <div class="card-head">
                             <div>
-                            <div class="ps">Role *</div>
-                            <select class="fi" id="f-role">
-                                <option value="">Pilih Role...</option>
-                                <option value="admin">Admin</option>
-                                <option value="dev">Dev</option>
-                                <option value="ops">Ops</option>
-                                <option value="viewer">Viewer</option>
-                            </select>
+                                <div class="ph">Daftar user</div>
+                                <div class="ps" id="tbl-count">Menampilkan 8 user</div>
+                            </div>
+                        </div>
+                        <table class="tbl">
+                            <thead>
+                                <tr>
+                                    <th style="width:38px;"></th>
+                                    <th class="ps" style="width:110px;">Username</th>
+                                    <th class="ps" style="width:70px;">Role</th>
+                                    <th class="ps" style="width:70px;">Group</th>
+                                    <th class="ps" style="width:65px;">Status</th>
+                                    <th class="ps" style="width:80px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="stat-card" id="form-panel">
+                        <div class="form-head" id="form-head-title">
+                            <div class="ph" id="form-title">Tambah user baru</div>
+                            <div class="ps">Isi data user yang akan ditambahkan ke sistem</div>
+                        </div>
+                        <div class="form-body">
+                            <div>
+                                <div class="ps">Username *</div>
+                                <input class="fi" id="f-username" placeholder="contoh: zaky_dev" oninput="validateForm()">
                             </div>
                             <div>
-                        </div>
-                        <div>
-                            <div class="ps">Group</div>
-                            <select class="fi" id="f-group">
-                                <option value="">Pilih Group...</option>
-                                <option value="admin">Admin</option>
-                                <option value="dev">Dev</option>
-                                <option value="ops">Ops</option>
-                                <option value="viewer">Viewer</option>
-                            </select>
-                        <div>
-                            <div class="ps">Password sementara *</div>
-                            <input class="fi" id="f-pass" placeholder="min. 8 karakter" type="password" oninput="validateForm()">
-                        </div>
-                        <div id="form-toast" class="toast"></div>
-                        <div class="form-footer">
-                            <button class="btn btn-green" id="btn-submit" onclick="submitForm()" style="flex:1;">
-                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;"><path d="M3 8l4 4 6-7"/></svg>
-                            <span id="btn-submit-label">Tambah user</span>
-                            </button>
-                            <button class="btn" onclick="resetForm()">Batal</button>
-                        </div>
+                                <div class="ps">Nama lengkap *</div>
+                                <input class="fi" id="f-fullname" placeholder="contoh: Zaky Aditya Susanto" oninput="validateForm()">
+                            </div>
+                            <div>
+                                <div class="ps">Email</div>
+                                <input class="fi" id="f-email" placeholder="contoh: zaky@manux.dev" type="email">
+                            </div>
+                            <div>
+                                <div class="ps">Group *</div>
+                                <select class="fi" id="f-group">
+                                    <option value="">⏳ Memuat grup...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="ps">Password sementara *</div>
+                                <input class="fi" id="f-pass" placeholder="min. 8 karakter" type="password" oninput="validateForm()">
+                            </div>
+                            <div id="form-toast" class="toast"></div>
+                            <div class="form-footer">
+                                <button class="btn btn-green" id="btn-submit" onclick="submitForm()" style="flex:1;">
+                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;"><path d="M3 8l4 4 6-7"/></svg>
+                                    <span id="btn-submit-label">Tambah user</span>
+                                </button>
+                                <button class="btn" onclick="resetForm()">Batal</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div id="delete-modal" style="display:none;">
-                <div class="modal-overlay" id="delete-modal">
+                <div class="modal-overlay">
                     <div class="modal-card stat-card">
                         <div class="modal-title">⚠ Hapus user ini?</div>
                         <div class="modal-sub">
-                        User <strong id="del-uname"></strong> akan dihapus dari sistem.
-                        Semua data dan hak akses terkait juga ikut dihapus.
-                        Aksi ini tidak bisa dibatalkan.
+                            User <strong id="del-uname"></strong> akan dihapus dari sistem.
+                            Semua data dan hak akses terkait juga ikut dihapus.
+                            Aksi ini tidak bisa dibatalkan.
                         </div>
                         <div class="modal-btns">
-                        <button class="btn" onclick="closeDelete()">Batal</button>
-                        <button class="btn btn-red" onclick="confirmDelete()">
-                            Ya, hapus
-                        </button>
+                            <button class="btn" onclick="closeDelete()">Batal</button>
+                            <button class="btn btn-red" onclick="confirmDelete()">Ya, hapus</button>
                         </div>
-
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
-<script src="user.js"></script>
-<script>
-     // 1. FUNGSI LOAD PROFILE (TOPBAR)
+
+    <script src="/static/user/user.js"></script>
+    <script>
+    // 1. SINKRONISASI INDIKATOR NAMA PROFILE DI TOPBAR ATAS UTK KEBUTUHAN USER.JS
     async function muatProfileUser() {
         try {
             const response = await fetch('http://127.0.0.1:5000/get-stats', { method: 'GET' });
@@ -240,231 +212,70 @@
                 }
             }
         } catch (error) {
-            console.error("Gagal konek ke FastAPI untuk profile:", error);
+            console.error("Gagal konek ke FastAPI untuk profile topbar:", error);
         }
     }
 
-    // 2. FUNGSI LOAD STATISTIK (CARD ATAS)
-    async function muatStatistikDashboard() {
-        try {
-            const response = await fetch('http://127.0.0.1:5000/get-stats', { method: 'GET' });
-            const data = await response.json();
-            if (response.ok) {
-                if (document.getElementById('st-total'))  document.getElementById('st-total').innerText = data.total_user;
-                if (document.getElementById('st-online')) document.getElementById('st-online').innerText = data.online;
-                if (document.getElementById('st-admin'))  document.getElementById('st-admin').innerText = data.admin;
-                if (document.getElementById('st-new'))    document.getElementById('st-new').innerText = data.new_user;
-            }
-        } catch (error) {
-            console.error("Gagal konek ke FastAPI untuk statistik:", error);
-        }
-    }
-
-    // 3. FUNGSI INTI LOAD DAFTAR USER (SUNTIK KE TABEL) -> KOREKSI: Tadi bagian ini hilang!
-    async function muatDaftarUser() {
-        const tbody = document.getElementById('user-tbody');
-        if (!tbody) return;
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/get-users', { method: 'GET' });
-            const data = await response.json();
-
-            if (response.ok && data.status === "success") {
-                tbody.innerHTML = ""; // Bersihkan tabel lama
-                
-                if (document.getElementById('tbl-count')) {
-                    document.getElementById('tbl-count').innerText = `Menampilkan ${data.users.length} user`;
-                }
-
-                data.users.forEach(user => {
-                    const inisial = user.username.substring(0, 2).toUpperCase();
-                    
-                    // Tentukan warna teks status sesuai kondisi Linux
-                    let statusColor = '#8c8c8c'; // default offline (abu-abu)
-                    if (user.status === 'online') statusColor = '#52c41a'; // hijau
-                    if (user.status === 'idle') statusColor = '#faad14'; // kuning/oranye
-
-                    const row = `
-                        <tr>
-                            <td style="width:38px;">
-                                <div class="avatar-circle">${inisial}</div>
-                            </td>
-                            <td class="td-user">
-                                <strong class="uname-text">${user.username}</strong>
-                                <span class="fname-sub">${user.fullname}</span>
-                            </td>
-                            <td><span class="badge-role">${user.role}</span></td>
-                            <td><span class="text-muted">${user.group}</span></td>
-                            <td>
-                                <span style="color: ${statusColor}; font-weight: 600; font-size: 12px;">
-                                    ${user.status}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn-action" onclick="editUser('${user.username}')">Edit</button>
-                                    <button class="btn-action btn-del" onclick="bukaModalHapus('${user.username}')">Del</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-            }
-        } catch (error) {
-            console.error("Gagal memuat daftar user ke tabel:", error);
-        }
-    }
-
-    // TRIGGER OTOMATIS SAAT HALAMAN DIBUKA
-    document.addEventListener('DOMContentLoaded', () => {
-        muatProfileUser();
-        muatStatistikDashboard();
-        muatDaftarUser(); // KOREKSI: Jalankan fungsi tabel saat startup
-    });
-
-    // 4. VALIDASI FORM INPUT
-    function validateForm() {
-        const username = document.getElementById('f-username').value.trim();
-        const fullname = document.getElementById('f-fullname').value.trim();
-        const role = document.getElementById('f-role').value;
-        const password = document.getElementById('f-pass').value;
-        const btnSubmit = document.getElementById('btn-submit');
-
-        if (username !== "" && fullname !== "" && role !== "" && password.length >= 8) {
-            btnSubmit.disabled = false;
-        } else {
-            btnSubmit.disabled = true;
-        }
-    }
-
-    // 5. TOAST NOTIFIKASI FORM
-    function showFormToast(message, isSuccess = false) {
-        const toast = document.getElementById('form-toast');
-        toast.innerText = message;
-        toast.style.display = 'block';
-        toast.style.color = isSuccess ? '#52c41a' : '#ff4d4f';
-
-        setTimeout(() => { toast.style.display = 'none'; }, 4000);
-    }
-
-    // 6. FUNGSI SUBMIT FORM (TAMBAH USER)
-    async function submitForm() {
-        const username = document.getElementById('f-username').value.trim();
-        const fullname = document.getElementById('f-fullname').value.trim();
-        const email = document.getElementById('f-email').value.trim();
-        const role = document.getElementById('f-role').value;
-        const group = document.getElementById('f-group').value;
-        const password = document.getElementById('f-pass').value;
-
-        const btnSubmit = document.getElementById('btn-submit');
-        const btnLabel = document.getElementById('btn-submit-label');
-
-        btnSubmit.disabled = true;
-        btnLabel.innerText = "Memproses...";
-
-        const payload = {
-            username: username,
-            fullname: fullname,
-            email: email,
-            role: role,
-            group: group ? group : role,
-            password: password
-        };
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/add-user-complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.status === "success") {
-                showFormToast("User berhasil ditambahkan ke WSL!", true);
-                resetForm();
-                
-                // KOREKSI: Panggil nama fungsi refresh yang benar
-                muatStatistikDashboard();
-                muatDaftarUser();
-            } else {
-                showFormToast("Gagal: " + (data.detail || data.error || "Terjadi kesalahan sistem."));
-                btnSubmit.disabled = false;
-            }
-        } catch (error) {
-            console.error("Error saat submit form:", error);
-            showFormToast("Gagal terhubung ke server FastAPI.");
-            btnSubmit.disabled = false;
-        } finally {
-            btnLabel.innerText = "Tambah user";
-        }
-    }
-
-    // 7. RESET FORM (BATAL)
-    function resetForm() {
-        document.getElementById('f-username').value = "";
-        document.getElementById('f-fullname').value = "";
-        document.getElementById('f-email').value = "";
-        document.getElementById('f-role').value = "";
-        document.getElementById('f-group').value = "";
-        document.getElementById('f-pass').value = "";
-        document.getElementById('btn-submit').disabled = true;
-        document.getElementById('form-toast').style.display = 'none';
-    }
-
-    // EVENT LISTENER DROPDOWN ROLE
-    document.addEventListener('DOMContentLoaded', () => {
-        const roleSelect = document.getElementById('f-role');
-        if (roleSelect) roleSelect.addEventListener('change', validateForm);
-        
-        const btnSubmit = document.getElementById('btn-submit');
-        if (btnSubmit) btnSubmit.disabled = true;
-    });
-
-    // 8. FUNGSI MODAL POPUP HAPUS
     let userYangAkanDihapus = "";
 
+    // 2. MODAL BRIDGE — dipanggil oleh openDelete() di user.js
     function bukaModalHapus(username) {
         userYangAkanDihapus = username;
-        document.getElementById('del-uname').innerText = username;
-        document.getElementById('delete-modal').style.display = 'block';
+        const delUname = document.getElementById('del-uname');
+        if (delUname) delUname.innerText = username;
+        const outerModal = document.getElementById('delete-modal');
+        if (outerModal) {
+            outerModal.style.display = 'block';
+            const overlay = outerModal.querySelector('.modal-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
     }
 
     function closeDelete() {
-        document.getElementById('delete-modal').style.display = 'none';
+        const modal = document.getElementById('delete-modal');
+        if (modal) modal.style.display = 'none';
         userYangAkanDihapus = "";
     }
 
+    // 3. CONFIRM DELETE — async/await, refresh tabel & stat setelah hapus berhasil
     async function confirmDelete() {
-        if (!userYangAkanDihapus) return;
+        // Simpan ke variabel lokal SEBELUM closeDelete() mengosongkan userYangAkanDihapus
+        const targetUser = userYangAkanDihapus;
+        if (!targetUser) return;
+
+        const btn = document.querySelector('#delete-modal .btn-red');
+        if (btn) { btn.disabled = true; btn.textContent = 'Menghapus...'; }
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/delete-user/${userYangAkanDihapus}`, {
-                method: 'DELETE'
-            });
-            const data = await response.json();
+            const response = await fetch(
+                'http://127.0.0.1:5000/delete-user/' + encodeURIComponent(targetUser),
+                { method: 'DELETE' }
+            );
 
-            if (response.ok && data.status === "success") {
-                alert(data.message);
-                closeDelete();
-                
-                // KOREKSI: Panggil nama fungsi refresh yang benar
-                muatStatistikDashboard();
-                muatDaftarUser();
+            // Tangkap response body terlepas dari HTTP status
+            let data = {};
+            try { data = await response.json(); } catch(_) {}
+
+            if (response.ok && data.status === 'success') {
+                closeDelete(); // Aman dipanggil sekarang — targetUser sudah disimpan lokal
+                await fetchUsersFromBackend();
+                await fetchStatsFromBackend();
             } else {
-                alert("Gagal menghapus user: " + (data.error || data.detail));
+                const errMsg = data.error || data.detail || `HTTP ${response.status}`;
+                alert('Gagal menghapus user dari Linux: ' + errMsg);
             }
-        } catch (error) {
-            console.error("Error saat menghapus user:", error);
-            alert("Gagal terhubung ke FastAPI.");
+        } catch (err) {
+            console.error('Error hapus user:', err);
+            alert('Gagal terhubung ke FastAPI backend. Pastikan server berjalan di port 5000.');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Ya, hapus'; }
         }
     }
 
-    // Stub placeholder biar tidak error saat diclik desainer
-    function editUser(username) {
-        alert("Fitur edit untuk " + username + " sedang dikembangkan!");
-    }
+    // Pemicu startup topbar
+    document.addEventListener('DOMContentLoaded', () => {
+        muatProfileUser();
+    });
     </script>
 </body>
 </html>

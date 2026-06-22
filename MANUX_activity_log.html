@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Log</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="asset/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/asset/logo.png">
 </head>
 <body>
     <div class="shell">
@@ -14,7 +14,7 @@
             <div class="topbar-brand">
             <div style="display:flex;align-items:center;gap:14px;">
                 <div>
-                    <img src="./asset/logo.png" height="36" width="36"/>
+                    <img src="/static/asset/logo.png" height="36" width="36"/>
                 </div>
                 MANUX
                 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Group Management</span>
@@ -56,29 +56,23 @@
             <div class="nav-label">Menu</div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-            <a href="./MANUX_dashboard.html" >Dashboard</a>
+            <a href="/static/MANUX_dashboard.html" >Dashboard</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
-            <a href="user/MANUX_user_management.html" >User Management</a>
+            <a href="/static/user/MANUX_user_management.html" >User Management</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-            <a href="grup/MANUX_group_management.html" >Group Management</a>
+            <a href="/static/grup/MANUX_group_management.html" >Group Management</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <a href="MANUX_permissions.html" >Permissions</a>
+            <a href="/static/MANUX_permissions.html" >Permissions</a>
             </div>
             <div class="nav-item active">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-            <a href="MANUX_activity_log.html" >Activity Log</a>
-            <span class="nav-badge">3</span>
-            </div>
-            <div class="nav-label" style="margin-top:8px;">System</div>
-            <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-            <a href="../Manux-Management-User-Linux/MANUX_system_settings.html" >Settings</a>
+            <a href="/static/MANUX_activity_log.html" >Activity Log</a>
             </div>
         </div>
         <div class="content">
@@ -97,7 +91,7 @@
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
                     Export PDF
                 </button>
-                <button class="btn btn-primary" onclick="location.href='user/MANUX_user_management.html'">
+                <button class="btn btn-primary" onclick="location.href='/static/user/MANUX_user_management.html'">
                     User Management ↗
                 </button>
                 </div>
@@ -139,7 +133,7 @@
                     <div class="filter-group">
                     <span class="filter-lbl">Tanggal</span>
                     <div class="stat-card">
-                    <input type="date" id="f-date" value="2025-04-14" onchange="filterLogs()">
+                    <input type="date" id="f-date" onchange="filterLogs()">
                     </div>
                     </div>
                     <div class="filter-sep"></div>
@@ -147,11 +141,6 @@
                     <span class="filter-lbl">User</span>
                     <select class="fi-sel" style="font-size: 16px;" id="f-user" onchange="filterLogs()">
                         <option value="all">Semua user</option>
-                        <option value="admin">admin</option>
-                        <option value="mukgot">mukgot</option>
-                        <option value="safani">safani</option>
-                        <option value="malik">malik</option>
-                        <option value="elpa">elpa</option>
                     </select>
                     </div>
                     <div class="filter-sep"></div>
@@ -207,27 +196,8 @@
             </div>
             </div>
         <script>
-            const ALL_LOGS = [
-            {time:'09:38',user:'malik',type:'login',sev:'error',desc:'Login gagal 3x berturut-turut',ip:'192.168.1.45',cmd:'su -l malik',session:'-'},
-            {time:'09:35',user:'admin',type:'permission',sev:'warning',desc:'chmod 777 pada /etc/passwd',ip:'127.0.0.1',cmd:'chmod 777 /etc/passwd',session:'tty1'},
-            {time:'09:21',user:'admin',type:'permission',sev:'warning',desc:'Permission diubah di /var/log',ip:'127.0.0.1',cmd:'chmod 755 /var/log',session:'tty1'},
-            {time:'09:10',user:'mukgot',type:'login',sev:'success',desc:'Login berhasil dari terminal',ip:'192.168.1.12',cmd:'login mukgot',session:'pts/0'},
-            {time:'08:55',user:'admin',type:'user',sev:'success',desc:'User elpa ditambahkan ke group viewer',ip:'127.0.0.1',cmd:'usermod -aG viewer elpa',session:'tty1'},
-            {time:'08:41',user:'safani',type:'login',sev:'info',desc:'Login berhasil — sesi baru dimulai',ip:'192.168.1.20',cmd:'login safani',session:'pts/1'},
-            {time:'08:30',user:'admin',type:'group',sev:'success',desc:'Group ops berhasil dibuat',ip:'127.0.0.1',cmd:'groupadd ops',session:'tty1'},
-            {time:'08:15',user:'mukgot',type:'user',sev:'info',desc:'Password user malik diubah',ip:'192.168.1.12',cmd:'passwd malik',session:'pts/0'},
-            {time:'07:50',user:'elpa',type:'login',sev:'error',desc:'Login gagal — password salah',ip:'192.168.1.30',cmd:'login elpa',session:'-'},
-            {time:'07:44',user:'admin',type:'permission',sev:'info',desc:'ACL diperbarui untuk /home/mukgot',ip:'127.0.0.1',cmd:'setfacl -m u:mukgot:rwx /home/mukgot',session:'tty1'},
-            {time:'07:30',user:'safani',type:'login',sev:'success',desc:'Re-login berhasil setelah idle',ip:'192.168.1.20',cmd:'login safani',session:'pts/1'},
-            {time:'07:10',user:'admin',type:'user',sev:'success',desc:'User baru zaky berhasil dibuat',ip:'127.0.0.1',cmd:'useradd zaky',session:'tty1'},
-            {time:'06:55',user:'malik',type:'login',sev:'warning',desc:'Login dari IP tidak dikenal',ip:'10.0.0.99',cmd:'login malik',session:'pts/3'},
-            {time:'06:40',user:'admin',type:'group',sev:'info',desc:'User mukgot ditambah ke group dev',ip:'127.0.0.1',cmd:'usermod -aG dev mukgot',session:'tty1'},
-            {time:'06:20',user:'elpa',type:'login',sev:'success',desc:'Login berhasil setelah reset password',ip:'192.168.1.30',cmd:'login elpa',session:'pts/2'},
-            {time:'06:00',user:'admin',type:'user',sev:'success',desc:'User safani diubah jadi ops',ip:'127.0.0.1',cmd:'usermod -g ops safani',session:'tty1'},
-            {time:'05:45',user:'mukgot',type:'permission',sev:'info',desc:'Read permission diperiksa /etc/shadow',ip:'192.168.1.12',cmd:'ls -la /etc/shadow',session:'pts/0'},
-            {time:'05:30',user:'admin',type:'login',sev:'success',desc:'Admin login awal sistem',ip:'127.0.0.1',cmd:'login admin',session:'tty1'},
-            ];
-
+            const API = 'http://127.0.0.1:5000';
+            let ALL_LOGS = [];
             let sevFilter='all', currentPage=1, filtered=[];
             const PER_PAGE=8;
 
@@ -236,17 +206,72 @@
             const sevLabel={error:'Error',warning:'Warning',info:'Info',success:'Success'};
             const typeLabel={login:'Login/Logout',user:'Perubahan user',permission:'Permission',group:'Group'};
 
-            function filterLogs(){
-            const u=document.getElementById('f-user').value;
-            const t=document.getElementById('f-type').value;
-            filtered=ALL_LOGS.filter(l=>{
-                if(u!=='all'&&l.user!==u)return false;
-                if(t!=='all'&&l.type!==t)return false;
-                if(sevFilter!=='all'&&l.sev!==sevFilter)return false;
-                return true;
-            });
-            currentPage=1;
-            renderTable();
+            /* ================= AMBIL LOG DARI BACKEND (auth.log) ================= */
+            async function loadLogsFromBackend(){
+                const body = document.getElementById('log-body');
+                if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Memuat log dari sistem...</td></tr>';
+                try{
+                    const res  = await fetch(API + '/get-activity-log');
+                    const data = await res.json();
+                    if(data.status === 'success'){
+                        ALL_LOGS = data.logs;
+                        await populateUserFilter();
+                        filtered = [...ALL_LOGS];
+                        setSev('all');
+                        renderTable();
+                    } else {
+                        if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Gagal memuat log: '+(data.error||'unknown')+'</td></tr>';
+                    }
+                }catch(e){
+                    console.error('Gagal terhubung ke backend:', e);
+                    if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Tidak bisa terhubung ke backend.</td></tr>';
+                }
+            }
+
+            /* Isi dropdown filter user secara dinamis dari log yang benar-benar ada */
+/* 🌟 Ambil data user asli dari halaman User Management (FastAPI) */
+            async function populateUserFilter(){
+                const sel = document.getElementById('f-user');
+                if(!sel) return;
+                const current = sel.value;
+                
+                try {
+                    // Panggil API yang dipakai oleh halaman User Management
+                    const res = await fetch(API + '/get-users');
+                    const data = await res.json();
+                    
+                    if(data.status === 'success') {
+                        // Ambil daftar username asli (elpa-padila, zaky, test, newus, dll.)
+                        const usernames = data.users.map(u => u.username).sort();
+                        
+                        // Render ke dropdown + tambahkan user sistem penting jika dibutuhkan
+                        sel.innerHTML = '<option value="all">Semua user</option>' +
+                            '<option value="root">root</option>' + // opsional, jika ingin memantau log root
+                            usernames.map(u => `<option value="${u}">${u}</option>`).join('');
+                        
+                        if(usernames.includes(current) || current === 'root') sel.value = current;
+                    }
+                } catch (e) {
+                    console.error('Gagal memuat daftar user untuk filter:', e);
+                    // Fallback aman jika API gagal: gunakan data unik dari log seperti semula
+                    const users = [...new Set(ALL_LOGS.map(l => l.user))].filter(Boolean).sort();
+                    sel.innerHTML = '<option value="all">Semua user</option>' +
+                        users.map(u => `<option value="${u}">${u}</option>`).join('');
+                }
+            }
+
+                function filterLogs(){
+                const u = document.getElementById('f-user').value;
+                const t = document.getElementById('f-type').value;
+                
+                filtered = ALL_LOGS.filter(l => {
+                    if (u !== 'all' && l.user !== u) return false;
+                    if (t !== 'all' && l.type !== t) return false;
+                    if (sevFilter !== 'all' && l.sev !== sevFilter) return false;
+                    return true;
+                });
+                currentPage = 1;
+                renderTable();
             }
 
             function setSev(s){
@@ -263,6 +288,12 @@
             const page=filtered.slice(start,start+PER_PAGE);
             const body=document.getElementById('log-body');
             body.innerHTML='';
+            if(!page.length){
+                body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Tidak ada log yang cocok dengan filter.</td></tr>';
+                document.getElementById('pg-info').textContent='Menampilkan 0 dari 0 log';
+                updateStats();
+                return;
+            }
             page.forEach((l,i)=>{
                 const tr=document.createElement('tr');
                 tr.innerHTML=`
@@ -331,9 +362,12 @@
             setTimeout(()=>{t.style.display='none';},2500);
             }
 
-            filtered=[...ALL_LOGS];
-            setSev('all');
-            renderTable();
+            document.addEventListener('DOMContentLoaded', () => {
+                // Set tanggal filter ke hari ini secara otomatis
+                const today = new Date().toISOString().slice(0, 10);
+                document.getElementById('f-date').value = today;
+                loadLogsFromBackend();
+            });
         </script>
 </body>
 </html>

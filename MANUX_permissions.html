@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MANUX - Permissions</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="asset/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/asset/logo.png">
 </head>
 <body>
     <div class="shell">
@@ -14,7 +14,7 @@
             <div class="topbar-brand">
             <div style="display:flex;align-items:center;gap:14px;">
                 <div>
-                    <img src="./asset/logo.png" height="36" width="36"/>
+                    <img src="/static/asset/logo.png" height="36" width="36"/>
                 </div>
                 MANUX
                 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Permissions</span>
@@ -56,29 +56,23 @@
             <div class="nav-label">Menu</div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-            <a href="MANUX_dashboard.html" >Dashboard</a>
+            <a href="/static/MANUX_dashboard.html" >Dashboard</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
-            <a href="user/MANUX_user_management.html" >User Management</a>
+            <a href="/static/user/MANUX_user_management.html" >User Management</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-            <a href="grup/MANUX_group_management.html" >Group Management</a>
+            <a href="/static/grup/MANUX_group_management.html" >Group Management</a>
             </div>
             <div class="nav-item active">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <a href="MANUX_permissions.html" >Permissions</a>
+            <a href="/static/MANUX_permissions.html" >Permissions</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-            <a href="MANUX_activity_log.html" >Activity Log</a>
-            <span class="nav-badge">3</span>
-            </div>
-            <div class="nav-label" style="margin-top:8px;">System</div>
-            <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-            <a href="../Manux-Management-User-Linux/MANUX_system_settings.html" >Settings</a>
+            <a href="/static/MANUX_activity_log.html" >Activity Log</a>
             </div>
         </div>
         <div class="content">
@@ -146,9 +140,6 @@
                 </select>
                 <select class="fi-sel" id="res-owner" onchange="filterResources()">
                     <option value="all">Semua owner</option>
-                    <option value="admin">admin</option>
-                    <option value="mukgot">mukgot</option>
-                    <option value="safani">safani</option>
                 </select>
             </div>
             <div class="bulk-bar" id="bulk-bar">
@@ -209,22 +200,11 @@
             </div>
     </div>
     <script>
-        const RESOURCES=[
-        {id:1,name:'/etc/passwd',type:'file',owner:'admin',group:'admin',perm:[6,4,4],changed:false},
-        {id:2,name:'/home/mukgot',type:'dir',owner:'mukgot',group:'dev',perm:[7,5,5],changed:false},
-        {id:3,name:'/var/log',type:'dir',owner:'admin',group:'admin',perm:[7,5,5],changed:false},
-        {id:4,name:'/usr/bin/bash',type:'script',owner:'admin',group:'admin',perm:[7,5,5],changed:false},
-        {id:5,name:'/home/safani',type:'dir',owner:'safani',group:'ops',perm:[7,5,0],changed:false},
-        {id:6,name:'/tmp/session.log',type:'file',owner:'admin',group:'admin',perm:[6,4,4],changed:false},
-        {id:7,name:'/etc/shadow',type:'file',owner:'admin',group:'admin',perm:[6,0,0],changed:false},
-        {id:8,name:'/usr/local/manux',type:'dir',owner:'admin',group:'dev',perm:[7,7,5],changed:false},
-        ];
-
-        let resources=RESOURCES.map(r=>({...r,perm:[...r.perm]}));
-        let origPerm=RESOURCES.map(r=>({id:r.id,perm:[...r.perm]}));
-        let selected=new Set();
-        let filtered=[...resources];
-        let dark=false;
+        const API = 'http://127.0.0.1:5000';
+        let resources = [];
+        let origPerm = [];
+        let selected = new Set();
+        let filtered = [];
 
         const BIT_NAMES=[['r','w','x'],['r','w','x'],['r','w','x']];
         const ON_CLS=['on-r','on-w','on-x'];
@@ -236,6 +216,37 @@
         }
         function permToStr(p){return p.map(numToRwx).join('');}
         function permToChmod(p){return p.join('');}
+
+        /* ================= AMBIL DATA RESOURCE DARI BACKEND (os.stat) ================= */
+        async function loadPermissionsFromBackend(){
+            const body = document.getElementById('perm-body');
+            if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Memuat permission dari sistem...</td></tr>';
+            try{
+                const res  = await fetch(API + '/get-permissions');
+                const data = await res.json();
+                if(data.status === 'success'){
+                    resources = data.resources.map(r => ({...r, perm: [...r.perm]}));
+                    origPerm  = data.resources.map(r => ({id: r.id, perm: [...r.perm]}));
+                    populateOwnerFilter();
+                    renderTable();
+                } else {
+                    if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Gagal memuat: '+(data.error||'unknown')+'</td></tr>';
+                }
+            }catch(e){
+                console.error('Gagal terhubung ke backend:', e);
+                if(body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Tidak bisa terhubung ke backend.</td></tr>';
+            }
+        }
+
+        function populateOwnerFilter(){
+            const sel = document.getElementById('res-owner');
+            if(!sel) return;
+            const current = sel.value;
+            const owners = [...new Set(resources.map(r => r.owner))].filter(Boolean).sort();
+            sel.innerHTML = '<option value="all">Semua owner</option>' +
+                owners.map(o => `<option value="${o}">${o}</option>`).join('');
+            if(owners.includes(current)) sel.value = current;
+        }
 
         function renderTable(){
         const q=document.getElementById('res-search').value.toLowerCase();
@@ -249,6 +260,12 @@
         });
         const body=document.getElementById('perm-body');
         body.innerHTML='';
+        if(!filtered.length){
+            body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Tidak ada resource yang cocok.</td></tr>';
+            updateStats();
+            updateBulkBar();
+            return;
+        }
         filtered.forEach(r=>{
             const tr=document.createElement('tr');
             if(r.changed)tr.classList.add('changed');
@@ -390,19 +407,55 @@
         banner.style.display=hasChanges?'flex':'none';
         const cnt=resources.filter(r=>r.changed).length;
         document.getElementById('unsaved-txt').textContent=`${cnt} resource memiliki perubahan yang belum disimpan`;
-        document.getElementById('sb-chg').style.display=hasChanges?'':'none';
         document.getElementById('st-chg').textContent=cnt;
         }
 
-        function saveAll(){
-        origPerm=resources.map(r=>({id:r.id,perm:[...r.perm]}));
-        resources.forEach(r=>r.changed=false);
-        renderTable();
-        checkUnsaved();
+        /* ================= SAVE — kirim chmod nyata ke Linux via /apply-chmod ================= */
+        async function saveAll(){
+        const changedResources = resources.filter(r => r.changed);
+        if(!changedResources.length) return;
+
+        const saveBtn = document.querySelector('.btn-blue[onclick="saveAll()"]');
+        if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Menyimpan...'; }
+
+        let okCount = 0, failCount = 0, failMsgs = [];
+
+        for(const r of changedResources){
+            const mode = permToChmod(r.perm);
+            try{
+                const res  = await fetch(API + '/apply-chmod', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ path: r.name, mode })
+                });
+                const data = await res.json();
+                if(res.ok && data.status === 'success'){
+                    okCount++;
+                } else {
+                    failCount++;
+                    failMsgs.push(`${r.name}: ${data.error || data.detail || 'gagal'}`);
+                }
+            }catch(e){
+                failCount++;
+                failMsgs.push(`${r.name}: tidak bisa terhubung ke backend`);
+            }
+        }
+
+        if(saveBtn){ saveBtn.disabled = false; saveBtn.innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16"><path d="M3 8l4 4 6-7"/></svg> Save Changes'; }
+
+        // Refresh data asli dari Linux supaya state benar-benar sinkron (termasuk path yang gagal/terkunci)
+        await loadPermissionsFromBackend();
+
         const t=document.getElementById('save-toast');
-        t.textContent='Semua perubahan permission berhasil disimpan!';
+        if(failCount === 0){
+            t.style.background=''; t.style.color=''; t.style.borderColor='';
+            t.textContent=`${okCount} perubahan permission berhasil disimpan ke Linux!`;
+        } else {
+            t.style.background='var(--amber-l)'; t.style.color='var(--amber)'; t.style.borderColor='var(--amber-m)';
+            t.textContent=`${okCount} berhasil, ${failCount} gagal — ${failMsgs.join('; ')}`;
+        }
         t.style.display='block';
-        setTimeout(()=>t.style.display='none',2800);
+        setTimeout(()=>{t.style.display='none';t.style.background='';t.style.color='';t.style.borderColor='';},4000);
         }
 
         function revertAll(){
@@ -425,17 +478,16 @@
         function updateStats(){
         const full=resources.filter(r=>r.perm[2]===7).length;
         const rest=resources.filter(r=>r.perm[2]===0).length;
+        const totalEl = document.querySelector('.stat-grid .stat-card:nth-child(1) .stat-val');
+        if(totalEl) totalEl.textContent = resources.length;
         document.getElementById('st-full').textContent=full;
         document.getElementById('st-rest').textContent=rest;
         }
 
-        function toggleDark(){
-        dark=!dark;
-        document.getElementById('shell').setAttribute('data-dark',dark?'1':'0');
-        }
-
-        applyChmod('755');
-        renderTable();
+        document.addEventListener('DOMContentLoaded', () => {
+            applyChmod('755');
+            loadPermissionsFromBackend();
+        });
     </script>
 </body>
 </html>

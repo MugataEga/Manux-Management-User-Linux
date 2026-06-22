@@ -4,52 +4,194 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MANUX Dashboard Wireframe</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="asset/logo.png">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="/static/asset/logo.png">
   <script>
+const API = 'http://127.0.0.1:5000';
+
 function sendPrompt(text){
   alert("Action: " + text);
 }
 
-document.querySelectorAll('.btn-sm')[0].addEventListener('click', function(){
-  const name = prompt("Masukkan nama user:");
-  if(!name) return;
-
-  const container = document.querySelector('.card .user-row').parentNode;
-
-  const newUser = document.createElement('div');
-  newUser.className = 'user-row';
-  newUser.innerHTML = `
-    <div class="uavatar ua-blue">${name[0].toUpperCase()}</div>
-    <div>
-      <div class="uname">${name}</div>
-      <div class="urole">viewer</div>
-    </div>
-    <span class="ustatus s-online">online</span>
-  `;
-
-  container.appendChild(newUser);
-});
-
-document.querySelectorAll('.bit').forEach(bit => {
-  bit.addEventListener('click', () => {
-    if(bit.classList.contains('on')){
-      bit.classList.remove('on');
-      bit.classList.add('off');
-      bit.textContent = '-';
-    } else {
-      bit.classList.remove('off');
-      bit.classList.add('on');
-      bit.textContent = bit.textContent === '-' ? 'r' : bit.textContent;
+/* ================= AMBIL DATA DASHBOARD DARI BACKEND ================= */
+async function loadDashboard(){
+  try{
+    const res  = await fetch(API + '/get-dashboard');
+    const data = await res.json();
+    if(data.status !== 'success'){
+      console.error('Gagal memuat dashboard:', data.error);
+      return;
     }
-  });
-});
 
-document.querySelectorAll('.user-row').forEach(row => {
-  row.addEventListener('click', () => {
-    document.querySelectorAll('.user-row').forEach(r => r.style.background='');
-    row.style.background = '#1a1f2b';
+    // --- Stat cards ---
+    document.getElementById('st-total-user').textContent  = data.total_user;
+    document.getElementById('st-online').textContent      = data.online;
+    document.getElementById('st-online-sub').textContent  =
+      data.total_user > 0 ? Math.round((data.online / data.total_user) * 100) + '% dari total' : '0% dari total';
+    document.getElementById('st-total-groups').textContent = data.total_groups;
+    document.getElementById('st-groups-sub').textContent   =
+      data.group_names.length ? data.group_names.slice(0,3).join(', ') + (data.group_names.length > 3 ? '...' : '') : '-';
+
+    // --- Topbar profile ---
+    const pname = document.querySelector('.profile .pname');
+    const pa    = document.querySelector('.profile .pa');
+    if(pname) pname.textContent = data.self;
+    if(pa && data.self) pa.textContent = data.self.substring(0,2).toUpperCase();
+
+    // --- Daftar user (real-time dari Linux) ---
+    renderUserList(data.users);
+
+  }catch(e){
+    console.error('Gagal terhubung ke backend:', e);
+  }
+}
+
+const COLORS = ['ua-blue','ua-teal','ua-amber','ua-purple','ua-coral','ua-green'];
+function initials(name){
+  if(!name) return 'UN';
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function renderUserList(users){
+  const container = document.getElementById('dash-user-list');
+  if(!container) return;
+  container.innerHTML = '';
+  if(!users || !users.length){
+    container.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text-muted);">Belum ada user.</div>';
+    return;
+  }
+  users.forEach((u, i) => {
+    const color = COLORS[i % COLORS.length];
+    const statusCls = u.status === 'online' ? 's-online' : (u.status === 'idle' ? 's-idle' : 's-offline');
+    const row = document.createElement('div');
+    row.className = 'user-row';
+    row.innerHTML = `
+      <div class="uavatar ${color}">${initials(u.fullname || u.username)}</div>
+      <div>
+        <div class="uname">${u.username}</div>
+        <div class="urole">${u.group}</div>
+      </div>
+      <span class="ustatus ${statusCls}">${u.status}</span>
+    `;
+    row.addEventListener('click', () => {
+      document.querySelectorAll('.user-row').forEach(r => r.style.background='');
+      row.style.background = '#1a1f2b';
+    });
+    container.appendChild(row);
   });
+}
+
+/* ================= ACTIVITY LOG RINGKAS DI DASHBOARD ================= */
+async function loadRecentActivity(){
+  try{
+    const res  = await fetch(API + '/get-activity-log');
+    const data = await res.json();
+    if(data.status !== 'success') return;
+    renderRecentLogs(data.logs.slice(0, 5));
+  }catch(e){
+    console.error('Gagal memuat activity log:', e);
+  }
+}
+
+const DOT_CLASS = {error:'ld-err', warning:'ld-warn', info:'ld-info', success:'ld-ok'};
+
+function renderRecentLogs(logs){
+  const container = document.getElementById('dash-log-list');
+  if(!container) return;
+  container.innerHTML = '';
+  if(!logs || !logs.length){
+    container.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text-muted);">Belum ada aktivitas.</div>';
+    return;
+  }
+  logs.forEach(l => {
+    const row = document.createElement('div');
+    row.className = 'log-row';
+    row.innerHTML = `
+      <div class="log-dot ${DOT_CLASS[l.sev] || 'ld-info'}"></div>
+      <div>
+        <div class="log-msg">${l.desc} — <span style="font-family:var(--font-mono);font-size:11px;">${l.user}</span></div>
+        <div class="log-time">${l.time}</div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+/* ================= PERMISSION CONTROL RINGKAS DI DASHBOARD ================= */
+function numToRwx(n){
+  return [(n&4)?'r':'-', (n&2)?'w':'-', (n&1)?'x':'-'].join('');
+}
+
+async function loadPermSummary(){
+  try{
+    const res  = await fetch(API + '/get-permissions');
+    const data = await res.json();
+    if(data.status !== 'success') return;
+    renderPermSummary(data.resources.slice(0, 5));
+    renderPermBars(data.resources);
+  }catch(e){
+    console.error('Gagal memuat permission:', e);
+  }
+}
+
+function renderPermSummary(resources){
+  const container = document.getElementById('dash-perm-list');
+  if(!container) return;
+  container.innerHTML = '';
+  if(!resources || !resources.length){
+    container.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text-muted);">Tidak ada data.</div>';
+    return;
+  }
+  resources.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'perm-row';
+    const bitsHtml = r.perm.map((n, gi) => {
+      const bits = numToRwx(n).split('').map(c =>
+        `<span class="bit ${c === '-' ? 'off' : 'on'}">${c}</span>`
+      ).join('');
+      return bits + (gi < 2 ? '<span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span>' : '');
+    }).join('');
+    row.innerHTML = `
+      <span class="perm-name" style="font-size:11px;color:var(--text-secondary);">${r.name}</span>
+      <div class="perm-bits">${bitsHtml}</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderPermBars(resources){
+  const wrap = document.getElementById('dash-perm-bars');
+  if(!wrap || !resources.length) return;
+  const total = resources.length;
+  const pct = (bitIdx) => Math.round(
+    (resources.filter(r => r.perm.some(n => (n & (1 << (2 - bitIdx)))) ).length / total) * 100
+  );
+  const readPct  = pct(0);
+  const writePct = pct(1);
+  const execPct  = pct(2);
+  wrap.innerHTML = `
+    <div class="bar-row">
+      <span class="bar-label">Read</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${readPct}%;background:#639922;"></div></div>
+      <span class="bar-val">${readPct}%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Write</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${writePct}%;background:#BA7517;"></div></div>
+      <span class="bar-val">${writePct}%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Execute</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${execPct}%;background:#E24B4A;"></div></div>
+      <span class="bar-val">${execPct}%</span>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadDashboard();
+  loadRecentActivity();
+  loadPermSummary();
 });
 </script>
 </head>
@@ -60,7 +202,7 @@ document.querySelectorAll('.user-row').forEach(row => {
             <div class="topbar-brand">
             <div style="display:flex;align-items:center;gap:14px;">
                 <div>
-                  <img src="./asset/logo.png" height="36" width="36"/>
+                  <img src="/static/asset/logo.png" height="36" width="36"/>
                 </div>
                 MANUX
                 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Dashboard</span>
@@ -92,29 +234,23 @@ document.querySelectorAll('.user-row').forEach(row => {
     <div class="nav-label">Menu</div>
     <div class="nav-item active">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-      <a href="MANUX_dashboard.html" >Dashboard</a>
+      <a href="/static/MANUX_dashboard.html" >Dashboard</a>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
-      <a href="user/MANUX_user_management.html" >User Management</a>
+      <a href="/static/user/MANUX_user_management.html" >User Management</a>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-      <a href="grup/MANUX_group_management.html" >Group Management</a>
+      <a href="/static/grup/MANUX_group_management.html" >Group Management</a>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-      <a href="MANUX_permissions.html" >Permissions</a>
+      <a href="/static/MANUX_permissions.html" >Permissions</a>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-      <a href="MANUX_activity_log.html" >Activity Log</a>
-      <span class="nav-badge">3</span>
-    </div>
-    <div class="nav-label" style="margin-top:8px;">System</div>
-    <div class="nav-item">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-      <a href="../Manux-Management-User-Linux/MANUX_system_settings.html" >Settings</a>
+      <a href="/static/MANUX_activity_log.html" >Activity Log</a>
     </div>
   </div>
 
@@ -124,23 +260,23 @@ document.querySelectorAll('.user-row').forEach(row => {
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Total users</div>
-          <div class="stat-val">24</div>
-          <div class="stat-sub up">+2 minggu ini</div>
+          <div class="stat-val" id="st-total-user">-</div>
+          <div class="stat-sub" style="color:var(--text-secondary);">terdaftar di sistem</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Online sekarang</div>
-          <div class="stat-val">9</div>
-          <div class="stat-sub up">37% dari total</div>
+          <div class="stat-val" id="st-online">-</div>
+          <div class="stat-sub up" id="st-online-sub">- dari total</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total groups</div>
-          <div class="stat-val">6</div>
-          <div class="stat-sub" style="color:var(--text-secondary);">admin, dev, ops...</div>
+          <div class="stat-val" id="st-total-groups">-</div>
+          <div class="stat-sub" style="color:var(--text-secondary);" id="st-groups-sub">memuat...</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Alert aktif</div>
-          <div class="stat-val" style="color:#A32D2D;">3</div>
-          <div class="stat-sub down">Perlu ditinjau</div>
+          <div class="stat-label">Status sistem</div>
+          <div class="stat-val" style="color:#3a8b01;">OK</div>
+          <div class="stat-sub" style="color:var(--text-secondary);">terhubung ke Linux</div>
         </div>
       </div>
     </div>
@@ -152,30 +288,8 @@ document.querySelectorAll('.user-row').forEach(row => {
           <span class="card-head-title">Daftar user</span>
           <button class="btn-sm" onclick="location.href='user/MANUX_user_management.html'">+ Tambah user ↗</button>
         </div>
-        <div class="user-row">
-          <div class="uavatar ua-blue">AD</div>
-          <div><div class="uname">admin</div><div class="urole">root / superuser</div></div>
-          <span class="ustatus s-online">online</span>
-        </div>
-        <div class="user-row">
-          <div class="uavatar ua-teal">MK</div>
-          <div><div class="uname">mukgot</div><div class="urole">dev</div></div>
-          <span class="ustatus s-online">online</span>
-        </div>
-        <div class="user-row">
-          <div class="uavatar ua-amber">SF</div>
-          <div><div class="uname">safani</div><div class="urole">ops</div></div>
-          <span class="ustatus s-idle">idle</span>
-        </div>
-        <div class="user-row">
-          <div class="uavatar ua-purple">ML</div>
-          <div><div class="uname">malik</div><div class="urole">dev</div></div>
-          <span class="ustatus s-offline">offline</span>
-        </div>
-        <div class="user-row">
-          <div class="uavatar ua-coral">EL</div>
-          <div><div class="uname">elpa</div><div class="urole">viewer</div></div>
-          <span class="ustatus s-offline">offline</span>
+        <div id="dash-user-list">
+          <div style="padding:12px;font-size:12px;color:var(--text-muted);">Memuat data user...</div>
         </div>
       </div>
 
@@ -184,50 +298,11 @@ document.querySelectorAll('.user-row').forEach(row => {
           <span class="card-head-title">Permission control</span>
           <button class="btn-sm" onclick="location.href='MANUX_permissions.html'">Edit ↗</button>
         </div>
-        <div class="perm-row">
-          <span class="perm-name" style="font-size:11px;color:var(--text-secondary);">user/file</span>
-          <div class="perm-bits">
-            <span class="bit on">r</span><span class="bit on">w</span><span class="bit on">x</span>
-            <span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span>
-            <span class="bit on">r</span><span class="bit on">w</span><span class="bit off">-</span>
-            <span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span>
-            <span class="bit on">r</span><span class="bit off">-</span><span class="bit off">-</span>
-          </div>
-        </div>
-        <div class="perm-row">
-          <span class="perm-name">admin</span>
-          <div class="perm-bits"><span class="bit on">r</span><span class="bit on">w</span><span class="bit on">x</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit on">r</span><span class="bit on">w</span><span class="bit on">x</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit on">r</span><span class="bit off">-</span><span class="bit off">-</span></div>
-        </div>
-        <div class="perm-row">
-          <span class="perm-name">mukgot</span>
-          <div class="perm-bits"><span class="bit on">r</span><span class="bit on">w</span><span class="bit on">x</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit on">r</span><span class="bit off">-</span><span class="bit off">-</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit off">-</span><span class="bit off">-</span><span class="bit off">-</span></div>
-        </div>
-        <div class="perm-row">
-          <span class="perm-name">safani</span>
-          <div class="perm-bits"><span class="bit on">r</span><span class="bit on">w</span><span class="bit off">-</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit on">r</span><span class="bit off">-</span><span class="bit off">-</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit off">-</span><span class="bit off">-</span><span class="bit off">-</span></div>
-        </div>
-        <div class="perm-row">
-          <span class="perm-name">elpa</span>
-          <div class="perm-bits"><span class="bit on">r</span><span class="bit off">-</span><span class="bit off">-</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit off">-</span><span class="bit off">-</span><span class="bit off">-</span><span style="font-size:11px;color:var(--color-text-tertiary);padding:0 2px;">|</span><span class="bit off">-</span><span class="bit off">-</span><span class="bit off">-</span></div>
+        <div id="dash-perm-list">
+          <div style="padding:12px;font-size:12px;color:var(--text-muted);">Memuat data permission...</div>
         </div>
         <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary);">
-          <div class="bar-wrap">
-            <div class="bar-row">
-              <span class="bar-label">Read</span>
-              <div class="bar-track"><div class="bar-fill" style="width:80%;background:#639922;"></div></div>
-              <span class="bar-val">80%</span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Write</span>
-              <div class="bar-track"><div class="bar-fill" style="width:50%;background:#BA7517;"></div></div>
-              <span class="bar-val">50%</span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Execute</span>
-              <div class="bar-track"><div class="bar-fill" style="width:35%;background:#E24B4A;"></div></div>
-              <span class="bar-val">35%</span>
-            </div>
-          </div>
+          <div class="bar-wrap" id="dash-perm-bars"></div>
         </div>
       </div>
     </div>
@@ -237,25 +312,8 @@ document.querySelectorAll('.user-row').forEach(row => {
         <span class="card-head-title">Activity log</span>
         <button class="btn-sm" onclick="location.href='MANUX_activity_log.html'">Lihat semua ↗</button>
       </div>
-      <div class="log-row">
-        <div class="log-dot ld-err"></div>
-        <div><div class="log-msg">Login gagal 3x — user <span style="font-family:var(--font-mono);font-size:11px;">malik</span> (IP: 192.168.1.45)</div><div class="log-time">09:38 — Hari ini</div></div>
-      </div>
-      <div class="log-row">
-        <div class="log-dot ld-warn"></div>
-        <div><div class="log-msg">Permission diubah — <span style="font-family:var(--font-mono);font-size:11px;">/etc/passwd</span> oleh <span style="font-family:var(--font-mono);font-size:11px;">admin</span></div><div class="log-time">09:21 — Hari ini</div></div>
-      </div>
-      <div class="log-row">
-        <div class="log-dot ld-ok"></div>
-        <div><div class="log-msg">User baru dibuat — <span style="font-family:var(--font-mono);font-size:11px;">elpa</span> ditambahkan ke group <span style="font-family:var(--font-mono);font-size:11px;">viewer</span></div><div class="log-time">08:55 — Hari ini</div></div>
-      </div>
-      <div class="log-row">
-        <div class="log-dot ld-info"></div>
-        <div><div class="log-msg">Login berhasil — <span style="font-family:var(--font-mono);font-size:11px;">mukgot</span> masuk dari terminal</div><div class="log-time">08:41 — Hari ini</div></div>
-      </div>
-      <div class="log-row">
-        <div class="log-dot ld-ok"></div>
-        <div><div class="log-msg">Group baru dibuat — <span style="font-family:var(--font-mono);font-size:11px;">ops</span> oleh <span style="font-family:var(--font-mono);font-size:11px;">admin</span></div><div class="log-time">Kemarin — 22:10</div></div>
+      <div id="dash-log-list">
+        <div style="padding:12px;font-size:12px;color:var(--text-muted);">Memuat aktivitas terbaru...</div>
       </div>
     </div>
 

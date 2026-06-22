@@ -13,30 +13,100 @@ const STATUS_PILL = {
   offline: 'p-offline'
 };
 
-let users = [
-  {id:1,username:'admin',name:'Administrator',email:'admin@manux.dev',role:'admin',group:'admin',status:'online',isNew:false},
-  {id:2,username:'mukgot',name:'Mukgot Ega S.',email:'mukgot@manux.dev',role:'dev',group:'dev',status:'online',isNew:false},
-  {id:3,username:'safani',name:'Safani Nuraini',email:'safani@manux.dev',role:'ops',group:'ops',status:'idle',isNew:false},
-  {id:4,username:'malik',name:'Malik Alfat M.',email:'malik@manux.dev',role:'dev',group:'dev',status:'offline',isNew:false},
-  {id:5,username:'elpa',name:'Elpa Padila',email:'elpa@manux.dev',role:'viewer',group:'viewer',status:'offline',isNew:true},
-  {id:6,username:'kirana',name:'Kirana Cinta M.',email:'kirana@manux.dev',role:'dev',group:'dev',status:'online',isNew:false},
-  {id:7,username:'zaky',name:'Zaky Aditya S.',email:'zaky@manux.dev',role:'ops',group:'ops',status:'offline',isNew:true},
-  {id:8,username:'adinda',name:'Adinda Syafira',email:'adinda@manux.dev',role:'viewer',group:'viewer',status:'offline',isNew:false},
-];
-
-let nextId = 9;
+// Array lokal murni kembali utuh untuk mengelola state internal dashboard
+let users = [];
+let nextId = 1;
 let editingId = null;
 let deleteTargetId = null;
-let filtered = [...users];
+let filtered = [];
 
 /* ================= UTIL ================= */
 function initials(n) {
+  if (!n) return 'UN';
   return n.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 }
 
-/* ================= RENDER ================= */
+/* ================= AMBIL DATA DARI BACKEND ================= */
+async function fetchUsersFromBackend() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/get-users');
+    const data = await response.json();
+    
+    if (data.status === 'success') {
+      // Map data dari Linux agar sesuai dengan format komponen UI HTML kalian
+      users = data.users.map((u, index) => ({
+        id: index + 1,
+        username: u.username,
+        name: u.fullname || u.username,
+        email: `${u.username}@manux.dev`,
+        role: u.role,
+        group: u.group,
+        status: u.status,
+        isNew: false
+      }));
+      filtered = [...users];
+      renderTable(); // Jalankan fungsi render bawaan user.js asli
+    } else {
+      console.error("Gagal mengambil data Linux:", data.error);
+    }
+  } catch (error) {
+    console.error("Gagal terhubung ke Backend FastAPI:", error);
+  }
+}
+
+async function fetchStatsFromBackend() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/get-stats');
+    const data = await response.json();
+    
+    if (data.status === 'success') {
+      if(document.getElementById('st-total')) document.getElementById('st-total').textContent = data.total_user;
+      if(document.getElementById('st-online')) document.getElementById('st-online').textContent = data.online;
+      if(document.getElementById('st-admin')) document.getElementById('st-admin').textContent = data.admin;
+      if(document.getElementById('st-new')) document.getElementById('st-new').textContent = data.new_user;
+    }
+  } catch (error) {
+    console.error("Gagal mengambil statistik Linux:", error);
+  }
+}
+
+/* ================= POPULATE GROUP DROPDOWN ================= */
+/**
+ * Menembak GET /get-groups, lalu mengisi <select id="f-group">
+ * dengan nama grup asli Linux (GID >= 1000).
+ * Dipanggil saat inisialisasi dashboard dan saat form di-reset.
+ */
+async function populateGroupDropdown() {
+  const sel = document.getElementById('f-group');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">⏳ Memuat grup...</option>';
+  sel.disabled = true;
+  try {
+    const res  = await fetch('http://127.0.0.1:5000/get-groups');
+    const data = await res.json();
+    if (data.status === 'success' && data.groups.length) {
+      sel.innerHTML = '<option value="">Pilih Group...</option>';
+      data.groups.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.name;
+        opt.textContent = `${g.name}  (GID ${g.gid})`;
+        sel.appendChild(opt);
+      });
+    } else {
+      sel.innerHTML = '<option value="">Tidak ada grup tersedia</option>';
+    }
+  } catch (e) {
+    console.error('Gagal memuat grup:', e);
+    sel.innerHTML = '<option value="">Gagal memuat grup</option>';
+  } finally {
+    sel.disabled = false;
+  }
+}
+
+/* ================= RENDER ORIGINAL ================= */
 function renderTable() {
   const tbody = document.getElementById('user-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
 
   filtered.forEach((u) => {
@@ -45,181 +115,164 @@ function renderTable() {
 
     if (editingId === u.id) tr.classList.add('selected-row');
 
+    // Menggunakan kelas visual asli bawaan file user.js pertamamu
     tr.innerHTML = `
       <td>
         <div class="ua ${color} initial" style="margin:0 auto;">
           ${initials(u.name)}
         </div>
       </td>
-
       <td>
         <div class="username">${u.username}</div>
-        <div class="ps">
-          ${u.name}
-        </div>
+        <div class="ps">${u.name}</div>
       </td>
-      <td class="role">
-        ${u.role}
-      </td>
-      <td class="group">
-        ${u.group}
-      </td>
+      <td class="role">${u.role}</td>
+      <td class="group">${u.group}</td>
       <td>
-        <span class="status ${u.status}">
-          ${u.status}
-        </span>
+        <span class="status ${u.status}">${u.status}</span>
       </td>
-
       <td>
         <div class="action-btns">
-          <button class="ab ab-edit" onclick="openEdit(${u.id})">
-            Edit
-          </button>
-
-          <button class="ab ab-del"
-            onclick="openDelete(${u.id})"
-            ${u.username === 'admin' ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>
+          <button class="ab ab-edit" onclick="openEdit(${u.id})">Edit</button>
+          <button class="ab ab-del" onclick="openDelete(${u.id}, '${u.username}')"
+            ${u.username === 'admin' || u.username === 'root' || u.username === 'elpa-padila' ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>
             Del
           </button>
         </div>
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 
-  document.getElementById('tbl-count').textContent =
-    `Menampilkan ${filtered.length} user`;
-
-  updateStats();
-}
-
-/* ================= STATS ================= */
-function updateStats() {
-  document.getElementById('st-total').textContent = users.length;
-  document.getElementById('st-online').textContent = users.filter(u => u.status === 'online').length;
-  document.getElementById('st-admin').textContent = users.filter(u => u.role === 'admin').length;
-  document.getElementById('st-new').textContent = users.filter(u => u.isNew).length;
+  const tblCount = document.getElementById('tbl-count');
+  if (tblCount) tblCount.textContent = `Menampilkan ${filtered.length} user`;
 }
 
 /* ================= FILTER ================= */
 function filterTable() {
   const q = document.getElementById('search-inp').value.toLowerCase();
-  const r = document.getElementById('filter-role').value;
   const s = document.getElementById('filter-status').value;
 
   filtered = users.filter(u => {
-    const matchQ =
-      !q ||
-      u.username.includes(q) ||
-      u.name.toLowerCase().includes(q) ||
-      u.email.includes(q);
-
-    const matchR = r === 'all' || u.role === r;
+    const matchQ = !q || u.username.includes(q) || u.name.toLowerCase().includes(q);
     const matchS = s === 'all' || u.status === s;
-
-    return matchQ && matchR && matchS;
+    return matchQ && matchS;
   });
 
   renderTable();
 }
 
-/* ================= FORM ================= */
+/* ================= FORM SUBMIT (TERHUBUNG KE LINUX) ================= */
+/* ================= FORM SUBMIT (TERHUBUNG KE LINUX) ================= */
+async function submitForm() {
+  const uname = document.getElementById('f-username').value.trim();
+  const fname = document.getElementById('f-fullname').value.trim();
+  const email = document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : '';
+  const group = (document.getElementById('f-group').value || '').trim();
+  const role  = group; // role = group (tidak ada dropdown role terpisah)
+  const pass  = document.getElementById('f-pass').value;
+
+  if (!uname || !fname || (editingId === null && (!group || pass.length < 8))) {
+    showToast('Lengkapi semua field yang wajib diisi!', 'err');
+    return;
+  }
+
+  if (editingId === null) {
+    // ================= MODE: TAMBAH USER BARU =================
+    showToast('Sedang membuat user di sistem Linux...', 'ok');
+    try {
+      const response = await fetch('http://127.0.0.1:5000/add-user-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: uname,
+          fullname: fname,
+          email: email,
+          role: role,
+          group: group,
+          password: pass
+        })
+      });
+      
+      const resData = await response.json();
+      if (resData.status === 'success') {
+        showToast(`User Linux ${uname} sukses diciptakan!`, 'ok');
+        resetForm();
+        initDashboard();
+      } else {
+        showToast('Gagal: ' + resData.error, 'err');
+      }
+    } catch (e) {
+      showToast('Gagal menghubungi backend server!', 'err');
+    }
+  } else {
+    // ================= MODE: EDIT USER (SIMPAN PERUBAHAN) =================
+    showToast('Sedang memperbarui data di sistem Linux...', 'ok');
+    try {
+      const response = await fetch('http://127.0.0.1:5000/edit-user-complete', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: uname,
+          fullname: fname,
+          email: email,
+          role: role,
+          group: group,
+          password: 'skip_password_fields' // Mengisi skema pydantic agar lolos validasi
+        })
+      });
+      
+      const resData = await response.json();
+      if (resData.status === 'success') {
+        showToast(`Data user ${uname} sukses diperbarui!`, 'ok');
+        editingId = null;
+        resetForm();
+        initDashboard(); // Refresh tabel agar nama baru langsung muncul
+      } else {
+        showToast('Gagal edit: ' + resData.error, 'err');
+      }
+    } catch (e) {
+      showToast('Gagal menghubungi backend server saat edit!', 'err');
+    }
+  }
+}
+
 function openAddForm() {
   editingId = null;
-
-  document.getElementById('form-title').textContent = 'Tambah user baru';
-  document.getElementById('btn-submit-label').textContent = 'Tambah user';
-
-  document.getElementById('f-username').value = '';
-  document.getElementById('f-fullname').value = '';
-  document.getElementById('f-email').value = '';
-  document.getElementById('f-role').value = '';
-  document.getElementById('f-group').value = 'dev';
-  document.getElementById('f-pass').value = '';
-
-  document.getElementById('f-username').disabled = false;
-
+  if(document.getElementById('form-title')) document.getElementById('form-title').textContent = 'Tambah user baru';
+  if(document.getElementById('btn-submit-label')) document.getElementById('btn-submit-label').textContent = 'Tambah user';
+  if(document.getElementById('f-username')) { document.getElementById('f-username').value = ''; document.getElementById('f-username').disabled = false; }
+  if(document.getElementById('f-fullname')) document.getElementById('f-fullname').value = '';
+  if(document.getElementById('f-email')) document.getElementById('f-email').value = '';
+  if(document.getElementById('f-pass')) document.getElementById('f-pass').value = '';
+  // Refresh dropdown grup dari Linux setiap kali form dibuka
+  populateGroupDropdown();
   clearToast();
-  renderTable();
 }
 
 function openEdit(id) {
   const u = users.find(x => x.id === id);
   if (!u) return;
-
   editingId = id;
-
-  document.getElementById('form-title').textContent = 'Edit user: ' + u.username;
-  document.getElementById('btn-submit-label').textContent = 'Simpan perubahan';
-
-  document.getElementById('f-username').value = u.username;
-  document.getElementById('f-fullname').value = u.name;
-  document.getElementById('f-email').value = u.email;
-  document.getElementById('f-role').value = u.role;
-  document.getElementById('f-group').value = u.group;
-  document.getElementById('f-pass').value = '';
-
-  document.getElementById('f-username').disabled = true;
-
+  if(document.getElementById('form-title')) document.getElementById('form-title').textContent = 'Edit user: ' + u.username;
+  if(document.getElementById('btn-submit-label')) document.getElementById('btn-submit-label').textContent = 'Simpan perubahan';
+  if(document.getElementById('f-username')) { document.getElementById('f-username').value = u.username; document.getElementById('f-username').disabled = true; }
+  if(document.getElementById('f-fullname')) document.getElementById('f-fullname').value = u.name;
+  // Set dropdown group ke nilai saat ini
+  const grpSel = document.getElementById('f-group');
+  if(grpSel) grpSel.value = u.group;
   clearToast();
-  renderTable();
 }
 
 function validateForm() {
-  const ok =
-    document.getElementById('f-username').value.trim() &&
-    document.getElementById('f-fullname').value.trim() &&
-    (editingId || document.getElementById('f-pass').value.length >= 8);
-
-  document.getElementById('btn-submit').style.opacity = ok ? '1' : '0.55';
-}
-
-function submitForm() {
-  const uname = document.getElementById('f-username').value.trim();
-  const fname = document.getElementById('f-fullname').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const role = document.getElementById('f-role').value || 'viewer';
-  const group = document.getElementById('f-group').value || 'dev';
-  const pass = document.getElementById('f-pass').value;
-
-  if (!uname || !fname || (editingId === null && pass.length < 8)) {
-    showToast('Lengkapi semua field yang wajib diisi!', 'err');
-    return;
+  const uInp = document.getElementById('f-username');
+  const fInp = document.getElementById('f-fullname');
+  const btnSub = document.getElementById('btn-submit');
+  
+  if(uInp && fInp && btnSub) {
+    const ok = uInp.value.trim() && fInp.value.trim();
+    btnSub.style.opacity = ok ? '1' : '0.55';
   }
-
-  if (editingId !== null) {
-    const u = users.find(x => x.id === editingId);
-    if (u) {
-      u.name = fname;
-      u.email = email;
-      u.role = role;
-      u.group = group;
-    }
-    editingId = null;
-    showToast('User berhasil diperbarui!', 'ok');
-  } else {
-    if (users.find(x => x.username === uname)) {
-      showToast('Username sudah dipakai!', 'err');
-      return;
-    }
-
-    users.push({
-      id: nextId++,
-      username: uname,
-      name: fname,
-      email,
-      role,
-      group,
-      status: 'offline',
-      isNew: true
-    });
-
-    showToast('User ' + uname + ' berhasil ditambahkan!', 'ok');
-  }
-
-  resetForm();
-  filterTable();
 }
 
 function resetForm() {
@@ -227,52 +280,37 @@ function resetForm() {
   openAddForm();
 }
 
-/* ================= TOAST ================= */
+/* ================= TOAST PLUGINS ================= */
 function showToast(msg, type) {
   const t = document.getElementById('form-toast');
+  if (!t) return;
   t.textContent = msg;
   t.className = 'toast ' + (type === 'ok' ? 'toast-ok' : 'toast-del');
   t.style.display = 'block';
-
-  setTimeout(() => {
-    t.style.display = 'none';
-  }, 3000);
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 
 function clearToast() {
-  document.getElementById('form-toast').style.display = 'none';
+  const t = document.getElementById('form-toast');
+  if (t) t.style.display = 'none';
 }
 
-function openDelete(id) {
-  const u = users.find(x => x.id === id);
-  if (!u) return;
-
-  deleteTargetId = id;
-  document.getElementById('del-uname').textContent = u.username;
-  document.getElementById('delete-modal').style.display = 'block';
+/* ================= INITIALIZATION ================= */
+function initDashboard() {
+  fetchUsersFromBackend();
+  fetchStatsFromBackend();
+  populateGroupDropdown();  // Isi dropdown grup dari Linux saat pertama load
 }
 
-function closeDelete() {
-  deleteTargetId = null;
-  document.getElementById('delete-modal').style.display = 'none';
-}
+window.addEventListener('DOMContentLoaded', () => {
+  initDashboard();
+  validateForm();
+});
 
-function confirmDelete() {
-  users = users.filter(u => u.id !== deleteTargetId);
-  filtered = filtered.filter(u => u.id !== deleteTargetId);
-
-  closeDelete();
-
-  if (editingId === deleteTargetId) {
-    editingId = null;
-    openAddForm();
+/* ================= KUNCI PERBAIKAN MODAL HAPUS ================= */
+// Fungsi ini yang bertugas menjembatani tombol Del di tabel untuk membuka modal di HTML-mu
+function openDelete(id, username) {
+  if (typeof bukaModalHapus === 'function') {
+    bukaModalHapus(username);
   }
-
-  renderTable();
 }
-
-/* ================= INIT ================= */
-renderTable();
-validateForm();
-
-// ========== Testing Code ==============

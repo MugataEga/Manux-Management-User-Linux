@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-stat-cardale=1.0">
     <title>MANUX - Group Management</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="icon" href="../asset/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/asset/logo.png">
 </head>
 <body>
     <div class="shell">
@@ -14,7 +14,7 @@
             <div class="topbar-brand">
             <div style="display:flex;align-items:center;gap:14px;">
                 <div>
-                  <img src="../asset/logo.png" height="36" width="36"/>
+                  <img src="/static/asset/logo.png" height="36" width="36"/>
                 </div>
                 MANUX
                 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">Group Management</span>
@@ -56,29 +56,23 @@
             <div class="nav-label">Menu</div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
-            <a href="../MANUX_dashboard.html" >Dashboard</a>
+            <a href="/static/MANUX_dashboard.html" >Dashboard</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5"/></svg>
-            <a href="../user/MANUX_user_management.html" >User Management</a>
+            <a href="/static/user/MANUX_user_management.html" >User Management</a>
             </div>
             <div class="nav-item active">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
-            <a href="../grup/MANUX_group_management.html" >Group Management</a>
+            <a href="/static/grup/MANUX_group_management.html" >Group Management</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <a href="../MANUX_permissions.html" >Permissions</a>
+            <a href="/static/MANUX_permissions.html" >Permissions</a>
             </div>
             <div class="nav-item">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-            <a href="../MANUX_activity_log.html" >Activity Log</a>
-            <span class="nav-badge">3</span>
-            </div>
-            <div class="nav-label" style="margin-top:8px;">System</div>
-            <div class="nav-item">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/><circle cx="8" cy="8" r="3"/></svg>
-            <a href="../MANUX_system_settings.html" >Settings</a>
+            <a href="/static/MANUX_activity_log.html" >Activity Log</a>
             </div>
         </div>
         
@@ -241,24 +235,43 @@
 const COLORS=['#4DA3FF','#6DBE45','#C98A2E','#E05252','#a78bfa','#34d399','#f472b6'];
 const BG_COLORS=['rgba(77,163,255,.18)','rgba(109,190,69,.18)','rgba(201,138,46,.18)','rgba(224,82,82,.18)','rgba(167,139,250,.18)','rgba(52,211,153,.18)','rgba(244,114,182,.18)'];
 
-const ALL_USERS=['mukgot','safani','malik','elpa','kirana','zaky','adinda','multazam','dhida','neisya','rasyid'];
-
-let groups=[
-  {id:1,name:'admin',gid:1000,desc:'Superuser group — full system access',members:[{u:'admin',role:'owner'},{u:'mukgot',role:'member'}],created:'24 Mar 2025',color:0},
-  {id:2,name:'dev',gid:1001,desc:'Developer team group',members:[{u:'mukgot',role:'owner'},{u:'malik',role:'member'},{u:'kirana',role:'member'},{u:'zaky',role:'member'}],created:'24 Mar 2025',color:1},
-  {id:3,name:'ops',gid:1002,desc:'Operations & deployment team',members:[{u:'safani',role:'owner'},{u:'dhida',role:'member'},{u:'rasyid',role:'member'}],created:'31 Mar 2025',color:2},
-  {id:4,name:'viewer',gid:1003,desc:'Read-only access group',members:[{u:'elpa',role:'owner'},{u:'adinda',role:'member'},{u:'neisya',role:'member'}],created:'07 Apr 2025',color:3},
-  {id:5,name:'backend',gid:1004,desc:'Backend service accounts',members:[{u:'mukgot',role:'owner'},{u:'malik',role:'member'}],created:'07 Apr 2025',color:4},
-  {id:6,name:'frontend',gid:1005,desc:'Frontend & UI team',members:[{u:'kirana',role:'owner'},{u:'zaky',role:'member'},{u:'adinda',role:'member'}],created:'14 Apr 2025',color:5},
-  {id:7,name:'empty-group',gid:1006,desc:'Belum ada member',members:[],created:'14 Apr 2025',color:6},
-];
-let nextGid=1007, nextId=8;
-let filtered=[...groups];
+const API='http://127.0.0.1:5000';
+let ALL_USERS=[];
+let groups=[];
+let filtered=[];
 let selected=new Set();
 let activeGroupId=null;
 let deleteTarget=null;
 let actLogs={};
-groups.forEach(g=>{actLogs[g.id]=[];});
+
+async function fetchGroupsFromBackend(){
+  showTableLoading(true);
+  try{
+    const res=await fetch(API+'/get-groups');
+    const data=await res.json();
+    if(data.status==='success'){
+      groups=data.groups.map((g,i)=>({...g,color:i,created:'—'}));
+      ALL_USERS=data.all_users||[];
+      actLogs={};
+      groups.forEach(g=>{actLogs[g.id]=[];});
+      renderTable();
+    } else {
+      showToast('Gagal memuat grup: '+(data.error||'unknown'),'err');
+    }
+  }catch(e){
+    showToast('Tidak bisa terhubung ke backend.','err');
+  } finally {
+    showTableLoading(false);
+  }
+}
+
+function showTableLoading(show){
+  const tbody=document.getElementById('grp-tbody');
+  if(show){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">⏳ Memuat data dari sistem Linux...</td></tr>';
+    document.getElementById('empty-state').style.display='none';
+  }
+}
 
 function initials(n){return n.slice(0,2).toUpperCase();}
 function colorOf(g){return COLORS[g.color%COLORS.length];}
@@ -431,21 +444,27 @@ function selectSuggestion(u){
   document.getElementById('add-member-inp').value=u;
   document.getElementById('suggestions').classList.remove('vis');
 }
-function addMemberFromInput(){
+async function addMemberFromInput(){
   const u=document.getElementById('add-member-inp').value.trim();
   if(!u)return;
   const g=groups.find(x=>x.id===activeGroupId);if(!g)return;
-  if(g.members.find(m=>m.u===u)){showToast(`${u} sudah ada di group ini`,'err');return;}
-  g.members.push({u,role:'member'});
-  document.getElementById('add-member-inp').value='';
-  document.getElementById('suggestions').classList.remove('vis');
-  renderMemberList(g);
-  document.getElementById('dp-count').textContent=g.members.length;
-  document.getElementById('drag-hint').style.display=g.members.length>1?'block':'none';
-  addLog(g.id,'add',`${u} ditambahkan ke group`);
-  renderActLog(g.id);
-  renderTable();
-  showToast(`${u} berhasil ditambahkan ke ${g.name}`,'ok');
+  if(g.members.find(m=>m.u===u)){showToast(u+' sudah ada di group ini','err');return;}
+  try{
+    const res=await fetch(API+'/add-group-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({group:g.name,username:u})});
+    const data=await res.json();
+    if(data.status==='success'){
+      document.getElementById('add-member-inp').value='';
+      document.getElementById('suggestions').classList.remove('vis');
+      addLog(g.id,'add',u+' ditambahkan ke group');
+      showToast(data.message,'ok');
+      await fetchGroupsFromBackend();
+      // Re-open detail panel for the same group (refreshed)
+      const refreshed=groups.find(x=>x.name===g.name);
+      if(refreshed)openDetail(refreshed.id);
+    } else {
+      showToast('Gagal: '+(data.error||data.detail||'unknown'),'err');
+    }
+  }catch(e){showToast('Error koneksi ke backend.','err');}
 }
 
 function addLog(gid,type,msg){
@@ -474,17 +493,27 @@ function validateGroupName(){
   document.getElementById('name-err').classList.toggle('vis',!!exists);
   document.getElementById('new-grp-name').classList.toggle('error',!!exists);
 }
-function createGroup(){
+async function createGroup(){
   const name=document.getElementById('new-grp-name').value.trim();
-  const desc=document.getElementById('new-grp-desc').value.trim();
   const gidVal=document.getElementById('new-grp-gid').value;
   if(!name){showToast('Nama group wajib diisi','err');return;}
   if(groups.find(g=>g.name===name)){showToast('Nama group sudah dipakai!','err');return;}
-  const gid=gidVal?parseInt(gidVal):nextGid++;
-  const newG={id:nextId++,name,gid,desc:desc||'Tidak ada deskripsi',members:[],created:'16 Apr 2025',color:nextId%COLORS.length};
-  groups.push(newG);actLogs[newG.id]=[];
-  closeCreateModal();renderTable();
-  showToast(`Group "${name}" berhasil dibuat!`,'ok');
+  const btn=document.getElementById('btn-create');
+  btn.disabled=true;btn.textContent='Membuat...';
+  try{
+    const payload={name};
+    if(gidVal)payload.gid=parseInt(gidVal);
+    const res=await fetch(API+'/add-group',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.status==='success'){
+      closeCreateModal();
+      showToast(data.message,'ok');
+      await fetchGroupsFromBackend();
+    } else {
+      showToast('Gagal: '+(data.error||data.detail||'unknown'),'err');
+    }
+  }catch(e){showToast('Error koneksi ke backend.','err');}
+  finally{btn.disabled=false;btn.innerHTML='<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 16 16" style="width:13px;height:13px;"><path d="M3 8l4 4 6-7"/></svg> Buat Group';}
 }
 
 function openDeleteSingle(id){
@@ -500,12 +529,24 @@ function openBulkDelete(){
   document.getElementById('delete-modal').classList.add('vis');
 }
 function closeDeleteModal(){document.getElementById('delete-modal').classList.remove('vis');deleteTarget=null;}
-function confirmDelete(){
+async function confirmDelete(){
   if(!deleteTarget)return;
-  deleteTarget.forEach(id=>{groups=groups.filter(g=>g.id!==id);if(activeGroupId===id)closeDetail();selected.delete(id);});
-  filtered=filtered.filter(g=>!deleteTarget.includes(g.id));
-  closeDeleteModal();renderTable();
-  showToast(`${deleteTarget.length} group berhasil dihapus`,'warn');
+  const names=deleteTarget.map(id=>{const g=groups.find(x=>x.id===id);return g?g.name:null;}).filter(Boolean);
+  closeDeleteModal();
+  let ok=0,fail=0;
+  for(const name of names){
+    try{
+      const res=await fetch(API+'/delete-group/'+encodeURIComponent(name),{method:'DELETE'});
+      const data=await res.json();
+      if(data.status==='success')ok++;
+      else{fail++;showToast('Gagal hapus '+name+': '+(data.error||''),'err');}
+    }catch(e){fail++;}
+  }
+  if(ok>0){
+    showToast(ok+' group berhasil dihapus'+(fail>0?' ('+fail+' gagal)':''),'warn');
+    await fetchGroupsFromBackend();
+    if(names.includes(groups.find(g=>g.id===activeGroupId)?.name))closeDetail();
+  }
   deleteTarget=null;
 }
 
@@ -520,7 +561,7 @@ function showToast(msg,type){
   setTimeout(()=>t.style.display='none',2800);
 }
 
-renderTable();
+fetchGroupsFromBackend();
 </script>
 </body>
 </html>
