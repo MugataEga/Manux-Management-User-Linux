@@ -83,11 +83,11 @@
                 <div class="page-sub">Semua aktivitas sistem — login, perubahan user/group, permission</div>
                 </div>
                 <div class="hdr-actions">
-                <button class="btn" onclick="doExport()">
+                <button class="btn" onclick="exportCSV()">
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
                     Export CSV
                 </button>
-                <button class="btn" onclick="doExport()">
+                <button class="btn" onclick="exportPDF()">
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M3 12h10"/></svg>
                     Export PDF
                 </button>
@@ -356,10 +356,151 @@
             document.getElementById('s-change').textContent=changes;
             }
 
+            /* ================= HELPER: LABEL & FILENAME ================= */
+            function getActiveFilterLabel(){
+                const dateVal = document.getElementById('f-date').value;
+                const userVal = document.getElementById('f-user').value;
+                const typeVal = document.getElementById('f-type').value;
+                const parts = [];
+                if(dateVal) parts.push(dateVal);
+                if(userVal !== 'all') parts.push('user-'+userVal);
+                if(typeVal !== 'all') parts.push('tipe-'+typeVal);
+                if(sevFilter !== 'all') parts.push('sev-'+sevFilter);
+                return parts.length ? parts.join('_') : 'semua';
+            }
+
+            /* ================= EXPORT CSV ================= */
+            function exportCSV(){
+                if(!filtered.length){
+                    showToast('Tidak ada data untuk diexport.', true);
+                    return;
+                }
+                const headers = ['Waktu','User','Tipe','Severity','Deskripsi','IP Address','Session','Command'];
+                const typeLabel2 = {login:'Login/Logout',user:'Perubahan user',permission:'Permission',group:'Group'};
+                const sevLabel2  = {error:'Error',warning:'Warning',info:'Info',success:'Success'};
+
+                const rows = filtered.map(l => [
+                    l.time,
+                    l.user,
+                    typeLabel2[l.type] || l.type,
+                    sevLabel2[l.sev]  || l.sev,
+                    '"' + (l.desc||'').replace(/"/g,'""') + '"',
+                    l.ip,
+                    l.session,
+                    '"' + (l.cmd||'').replace(/"/g,'""') + '"'
+                ]);
+
+                const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+                const bom = '\uFEFF'; // BOM agar Excel baca UTF-8 dengan benar
+                const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href     = url;
+                a.download = `MANUX_activity_log_${getActiveFilterLabel()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('CSV berhasil diexport \u2014 ' + filtered.length + ' baris data.');
+            }
+
+            /* ================= EXPORT PDF ================= */
+            function exportPDF(){
+                if(!filtered.length){
+                    showToast('Tidak ada data untuk diexport.', true);
+                    return;
+                }
+                const dateVal  = document.getElementById('f-date').value || '-';
+                const userVal  = document.getElementById('f-user').value;
+                const typeVal  = document.getElementById('f-type').value;
+                const typeLabel2 = {login:'Login/Logout',user:'Perubahan user',permission:'Permission',group:'Group'};
+                const sevLabel2  = {error:'Error',warning:'Warning',info:'Info',success:'Success'};
+                const sevColor   = {error:'#c0392b',warning:'#e67e22',info:'#2980b9',success:'#27ae60'};
+
+                const filterInfo = [
+                    'Tanggal: ' + dateVal,
+                    'User: ' + (userVal === 'all' ? 'Semua' : userVal),
+                    'Tipe: ' + (typeVal === 'all' ? 'Semua' : (typeLabel2[typeVal]||typeVal)),
+                    'Severity: ' + (sevFilter === 'all' ? 'Semua' : (sevLabel2[sevFilter]||sevFilter)),
+                    'Total log: ' + filtered.length + ' entri'
+                ].join('   |   ');
+
+                const rows = filtered.map(function(l){
+                    return '<tr>' +
+                        '<td class="mono">' + l.time + '</td>' +
+                        '<td><strong>' + l.user + '</strong></td>' +
+                        '<td style="font-size:10px;color:#555;">' + (typeLabel2[l.type]||l.type) + '</td>' +
+                        '<td><span style="color:' + (sevColor[l.sev]||'#333') + ';font-weight:600;font-size:10px;">' + (sevLabel2[l.sev]||l.sev) + '</span></td>' +
+                        '<td>' + (l.desc||'') + '</td>' +
+                        '<td style="font-size:10px;color:#777;">' + l.ip + '</td>' +
+                    '</tr>';
+                }).join('');
+
+                const errCount    = filtered.filter(function(l){return l.sev==='error'||l.sev==='warning';}).length;
+                const okCount     = filtered.filter(function(l){return l.sev==='success';}).length;
+                const changeCount = filtered.filter(function(l){return l.type!=='login';}).length;
+
+                const html = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">' +
+                '<title>MANUX Activity Log</title>' +
+                '<style>' +
+                '* { margin:0; padding:0; box-sizing:border-box; }' +
+                'body { font-family: Arial, sans-serif; color:#1a1a2e; background:#fff; font-size:12px; }' +
+                '.header { background:#111827; color:#fff; padding:20px 28px 16px; }' +
+                '.header h1 { font-size:20px; font-weight:700; letter-spacing:1px; }' +
+                '.header p  { font-size:11px; color:#9ca3af; margin-top:4px; }' +
+                '.meta { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:10px 28px; font-size:10px; color:#64748b; }' +
+                '.summary { display:flex; gap:0; border-bottom:1px solid #e2e8f0; }' +
+                '.sum-card { flex:1; padding:14px 18px; border-right:1px solid #e2e8f0; }' +
+                '.sum-card:last-child { border-right:none; }' +
+                '.sum-lbl { font-size:10px; color:#64748b; margin-bottom:4px; }' +
+                '.sum-val { font-size:22px; font-weight:700; }' +
+                'table { width:100%; border-collapse:collapse; }' +
+                'th { background:#1e293b; color:#e2e8f0; padding:8px 10px; text-align:left; font-size:10px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; }' +
+                'td { padding:7px 10px; border-bottom:1px solid #f1f5f9; font-size:11px; vertical-align:middle; }' +
+                'tr:nth-child(even) td { background:#f8fafc; }' +
+                '.mono { font-family:monospace; color:#475569; }' +
+                '.footer { padding:14px 28px; border-top:1px solid #e2e8f0; font-size:10px; color:#94a3b8; display:flex; justify-content:space-between; margin-top:12px; }' +
+                '@media print { body{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }' +
+                '</style></head><body>' +
+                '<div class="header"><h1>MANUX — Activity Log</h1><p>Laporan aktivitas sistem yang digenerate secara otomatis</p></div>' +
+                '<div class="meta">' + filterInfo + '</div>' +
+                '<div class="summary">' +
+                  '<div class="sum-card"><div class="sum-lbl">Total Log</div><div class="sum-val">' + filtered.length + '</div></div>' +
+                  '<div class="sum-card"><div class="sum-lbl">Error / Warning</div><div class="sum-val" style="color:#c0392b;">' + errCount + '</div></div>' +
+                  '<div class="sum-card"><div class="sum-lbl">Login Berhasil</div><div class="sum-val" style="color:#27ae60;">' + okCount + '</div></div>' +
+                  '<div class="sum-card"><div class="sum-lbl">Perubahan Sistem</div><div class="sum-val">' + changeCount + '</div></div>' +
+                '</div>' +
+                '<table><thead><tr><th>Waktu</th><th>User</th><th>Tipe</th><th>Severity</th><th>Deskripsi</th><th>IP Address</th></tr></thead>' +
+                '<tbody>' + rows + '</tbody></table>' +
+                '<div class="footer"><span>MANUX Group Management System</span><span>Digenerate: ' + new Date().toLocaleString('id-ID') + '</span></div>' +
+                '<script>window.onload=function(){ window.print(); }<\/script>' +
+                '</body></html>';
+
+                // Download langsung sebagai file — tidak buka tab baru, tidak ada hang
+                const blob = new Blob([html], { type:'text/html;charset=utf-8;' });
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href     = url;
+                a.download = 'MANUX_activity_log_' + getActiveFilterLabel() + '.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                // Revoke setelah tick berikutnya — download sudah mulai, aman dihapus
+                setTimeout(function(){ URL.revokeObjectURL(url); }, 100);
+                showToast('File PDF berhasil didownload \u2014 buka lalu Ctrl+P untuk print/save PDF.');
+            }
+
+            /* ================= TOAST NOTIFIKASI ================= */
+            function showToast(msg, isError){
+                const t = document.getElementById('export-toast');
+                t.textContent = msg;
+                t.style.background = isError ? '#7f1d1d' : '';
+                t.style.display = 'block';
+                setTimeout(function(){ t.style.display='none'; t.style.background=''; }, 3000);
+            }
+
             function doExport(){
-            const t=document.getElementById('export-toast');
-            t.style.display='block';
-            setTimeout(()=>{t.style.display='none';},2500);
+                showToast('Gunakan tombol Export CSV atau Export PDF di atas.');
             }
 
             document.addEventListener('DOMContentLoaded', () => {
